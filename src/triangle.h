@@ -3,16 +3,16 @@
 
 #include "vector.h"
 
-// face_t stores the _indexes_ of the vertex.
-typedef struct face_t {
+// Face stores the _indexes_ of the vertex.
+typedef struct Face {
     int a;
     int b;
     int c;
-} face_t;
+} Face;
 
-// triangle_t stores the vec2 points for the projected triangle.
-typedef struct triangle_t {
-    vec2_t points[3];
-} triangle_t;
+// Triangle stores the vec2 points for the projected triangle.
+typedef struct Triangle {
+    Vec2 points[3];
+} Triangle;
 
 #endif

@@ -69,7 +69,7 @@ void draw_line(int x0, int y0, int x1, int y1, uint32_t color) {
 }
 
 // draw_line uses the DDA algorithm to draw a line
-void draw_triangle(triangle_t tri, uint32_t color) {
+void draw_triangle(Triangle tri, uint32_t color) {
     draw_line(tri.points[0].x, tri.points[0].y, tri.points[1].x, tri.points[1].y, color);
     draw_line(tri.points[1].x, tri.points[1].y, tri.points[2].x, tri.points[2].y, color);
     draw_line(tri.points[2].x, tri.points[2].y, tri.points[0].x, tri.points[0].y, color);

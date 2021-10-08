@@ -1,6 +1,6 @@
 #include "mesh.h"
 
-vec3_t mesh_vertices[N_MESH_VERTICES] = {
+Vec3 mesh_vertices[N_MESH_VERTICES] = {
     { .x = -1, .y = -1, .z = -1},
     { .x = -1, .y =  1, .z = -1},
     { .x =  1, .y =  1, .z = -1},
@@ -11,7 +11,7 @@ vec3_t mesh_vertices[N_MESH_VERTICES] = {
     { .x = -1, .y = -1, .z =  1},
 };
 
-face_t mesh_faces[N_MESH_FACES] = {
+Face mesh_faces[N_MESH_FACES] = {
     // front
     { .a = 1, .b = 2, .c = 3},
     { .a = 1, .b = 3, .c = 4},

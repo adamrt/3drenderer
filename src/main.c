@@ -7,9 +7,9 @@
 #include "mesh.h"
 #include "triangle.h"
 
-triangle_t triangles_to_render[N_MESH_FACES];
-vec3_t camera_position = { 0, 0, -5 };
-vec3_t cube_rotation = { 0, 0, 0 };
+Triangle triangles_to_render[N_MESH_FACES];
+Vec3 camera_position = { 0, 0, -5 };
+Vec3 cube_rotation = { 0, 0, 0 };
 
 float fov_factor = 640;
 
@@ -76,8 +76,8 @@ void process_input(void) {
 }
 
 
-vec2_t project(vec3_t point) {
-    vec2_t projected_point = {
+Vec2 project(Vec3 point) {
+    Vec2 projected_point = {
         .x = (fov_factor * point.x) / point.z,
         .y = (fov_factor * point.y) / point.z
     };
@@ -96,22 +96,22 @@ void update(void) {
     cube_rotation.z += 0.01;
 
     for (int i = 0; i < N_MESH_FACES; i++) {
-        face_t mesh_face = mesh_faces[i];
+        Face mesh_face = mesh_faces[i];
 
-        vec3_t face_vertices[3];
+        Vec3 face_vertices[3];
 
         // Offset for 0 vs 1-index
         face_vertices[0] = mesh_vertices[mesh_face.a - 1];
         face_vertices[1] = mesh_vertices[mesh_face.b - 1];
         face_vertices[2] = mesh_vertices[mesh_face.c - 1];
 
-        triangle_t projected_triangle;
+        Triangle projected_triangle;
 
         for (int j = 0; j < 3; j++) {
-            vec3_t vertex = face_vertices[j];
+            Vec3 vertex = face_vertices[j];
 
             // Rotate the vertex
-            vec3_t transformed_vertex;
+            Vec3 transformed_vertex;
             transformed_vertex = vec3_rotate_x(vertex, cube_rotation.x);
             transformed_vertex = vec3_rotate_y(transformed_vertex, cube_rotation.y);
             transformed_vertex = vec3_rotate_z(transformed_vertex, cube_rotation.z);
@@ -119,7 +119,7 @@ void update(void) {
             // Translate the vertex away from the camera in z
             transformed_vertex.z -= camera_position.z;
 
-            vec2_t projected_point = project(transformed_vertex);
+            Vec2 projected_point = project(transformed_vertex);
 
 
             // Scale and translate the projected point to the middle of the screen
@@ -141,7 +141,7 @@ void render(void) {
     draw_grid(0xFF333333);
 
     for (int i = 0; i < N_MESH_FACES; i++) {
-        triangle_t triangle = triangles_to_render[i];
+        Triangle triangle = triangles_to_render[i];
         draw_triangle(triangle, 0xFFFFFF00);
     }
 

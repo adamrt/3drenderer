@@ -1,20 +1,20 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-typedef struct vec2_t {
+typedef struct Vec2 {
     float x;
     float y;
-} vec2_t;
+} Vec2;
 
-typedef struct vec3_t {
+typedef struct Vec3 {
     float x;
     float y;
     float z;
-} vec3_t;
+} Vec3;
 
 
-vec3_t vec3_rotate_x(vec3_t v, float angle);
-vec3_t vec3_rotate_y(vec3_t v, float angle);
-vec3_t vec3_rotate_z(vec3_t v, float angle);
+Vec3 vec3_rotate_x(Vec3 v, float angle);
+Vec3 vec3_rotate_y(Vec3 v, float angle);
+Vec3 vec3_rotate_z(Vec3 v, float angle);
 
 #endif
