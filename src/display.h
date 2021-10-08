@@ -5,13 +5,15 @@
 #include <stdint.h>
 #include <SDL2/SDL.h>
 
+#define FPS 30
+#define FRAME_TARGET_TIME (1000 / FPS)
+
 extern SDL_Window *window;
 extern SDL_Renderer *renderer;
 extern SDL_Texture *color_buffer_texture;
 extern uint32_t *color_buffer;
 extern int SCREEN_WIDTH;
 extern int SCREEN_HEIGHT;
-
 
 bool initialize_window(void);
 void draw_grid(uint32_t color);

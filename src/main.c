@@ -16,6 +16,7 @@ vec3_t cube_rotation = { 0, 0, 0 };
 float fov_factor = 640;
 
 bool is_running = false;
+int previous_frame_time = 0;
 
 bool setup(void);
 void process_input(void);
@@ -98,9 +99,15 @@ vec2_t project(vec3_t point) {
 }
 
 void update(void) {
-    cube_rotation.x += 0.001;
-    cube_rotation.y += 0.001;
-    cube_rotation.z += 0.001;
+    int ms_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - previous_frame_time);
+    if (ms_to_wait > 0) {
+        SDL_Delay(ms_to_wait);
+    }
+    previous_frame_time = SDL_GetTicks();
+
+    cube_rotation.x += 0.01;
+    cube_rotation.y += 0.01;
+    cube_rotation.z += 0.01;
 
     for (int i = 0; i < N_POINTS; i++) {
         vec3_t point = cube_points[i];
