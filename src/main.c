@@ -7,7 +7,7 @@
 #include "mesh.h"
 #include "triangle.h"
 
-Triangle triangles_to_render[N_MESH_FACES];
+TriangleArray triangles_to_render;
 Vec3 camera_position = { 0, 0, -5 };
 Vec3 cube_rotation = { 0, 0, 0 };
 
@@ -95,6 +95,8 @@ void update(void) {
     cube_rotation.y += 0.01;
     cube_rotation.z += 0.01;
 
+    triangle_array_init(&triangles_to_render, 2);
+
     for (int i = 0; i < N_MESH_FACES; i++) {
         Face mesh_face = mesh_faces[i];
 
@@ -131,19 +133,33 @@ void update(void) {
         }
 
         // Save the projected triangle into the triangles to render.
-        triangles_to_render[i] = projected_triangle;
-
-
+        triangle_array_insert(&triangles_to_render, projected_triangle);
     }
 }
 
 void render(void) {
     draw_grid(0xFF333333);
 
-    for (int i = 0; i < N_MESH_FACES; i++) {
-        Triangle triangle = triangles_to_render[i];
-        draw_triangle(triangle, 0xFFFFFF00);
+    int num_triangles = triangles_to_render.length;
+
+    for (int i = 0; i < num_triangles; i++) {
+        Triangle triangle = triangles_to_render.triangles[i];
+
+        draw_rect(triangle.points[0].x, triangle.points[0].y, 3, 3, 0xFFFFFF00);
+        draw_rect(triangle.points[1].x, triangle.points[1].y, 3, 3, 0xFFFFFF00);
+        draw_rect(triangle.points[2].x, triangle.points[2].y, 3, 3, 0xFFFFFF00);
+
+        draw_triangle(triangle, 0xFF00FF00);
     }
+
+    // TODO: For implementation simplicity the triangle array memory allocated and freed
+    // each frame. A better solution would be to reuse the same allocated memory each
+    // frame since the number of triangles doesn't change.
+    //
+    // Originally that is how the implementation worked, but I was thinking that when we
+    // implement backface culling, the number of triangles actually might change, so I
+    // reverted to this version until we know.
+    triangle_array_free(&triangles_to_render);
 
     render_color_buffer();
     clear_color_buffer(0xFF000000);
