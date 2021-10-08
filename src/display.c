@@ -1,4 +1,5 @@
 #include "display.h"
+#include "triangle.h"
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
@@ -44,6 +45,34 @@ void draw_grid(uint32_t color) {
             draw_pixel(x, y, color);
         }
     }
+}
+
+// draw_line uses the DDA algorithm to draw a line
+void draw_line(int x0, int y0, int x1, int y1, uint32_t color) {
+    int delta_x = (x1 - x0);
+    int delta_y = (y1 - y0);
+
+    int side_length = abs(delta_x) >= abs(delta_y) ? abs(delta_x) : abs(delta_y);
+
+    // Find x and y increments per step
+    float x_inc = delta_x / (float)side_length;
+    float y_inc = delta_y / (float)side_length;
+
+    float current_x = x0;
+    float current_y = y0;
+
+    for (int i = 0; i <= side_length; i++) {
+        draw_pixel(round(current_x), round(current_y), color);
+        current_x += x_inc;
+        current_y += y_inc;
+    }
+}
+
+// draw_line uses the DDA algorithm to draw a line
+void draw_triangle(triangle_t tri, uint32_t color) {
+    draw_line(tri.points[0].x, tri.points[0].y, tri.points[1].x, tri.points[1].y, color);
+    draw_line(tri.points[1].x, tri.points[1].y, tri.points[2].x, tri.points[2].y, color);
+    draw_line(tri.points[2].x, tri.points[2].y, tri.points[0].x, tri.points[0].y, color);
 }
 
 void draw_pixel(int x, int y, uint32_t color) {
