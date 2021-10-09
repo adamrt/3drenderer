@@ -20,6 +20,7 @@ bool initialize_window(void);
 void draw_grid(uint32_t color);
 void draw_line(int x0, int y0, int x1, int y1, uint32_t color);
 void draw_triangle(Triangle tri, uint32_t color);
+void draw_points(Triangle tri, int width, int height, uint32_t color);
 void draw_pixel(int x, int y, uint32_t color);
 void draw_rect(int x, int y, int width, int height, uint32_t color);
 void render_color_buffer(void);

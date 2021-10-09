@@ -75,6 +75,13 @@ void draw_triangle(Triangle tri, uint32_t color) {
     draw_line(tri.points[2].x, tri.points[2].y, tri.points[0].x, tri.points[0].y, color);
 }
 
+void draw_points(Triangle tri, int width, int height, uint32_t color) {
+        draw_rect(tri.points[0].x, tri.points[0].y, width, height, color);
+        draw_rect(tri.points[1].x, tri.points[1].y, width, height, color);
+        draw_rect(tri.points[2].x, tri.points[2].y, width, height, color);
+}
+
+
 void draw_pixel(int x, int y, uint32_t color) {
     if (x >= 0 && x < SCREEN_WIDTH && y >= 0 && y < SCREEN_HEIGHT) {
         color_buffer[(SCREEN_WIDTH * y) + x] = color;

@@ -150,6 +150,7 @@ void render(void) {
     for (int i = 0; i < num_triangles; i++) {
         Triangle triangle = triangles_to_render[i];
         draw_triangle(triangle, 0xFFFFFF00);
+        // draw_points(triangle, 1, 1, 0xFFFFFF00);
     }
 
     array_free(triangles_to_render);
