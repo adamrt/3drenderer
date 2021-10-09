@@ -58,7 +58,7 @@ bool setup(void) {
         return false;
     }
 
-    load_cube_mesh_data();
+    load_obj_file("res/f22.obj");
 
     return true;
 }
