@@ -9,7 +9,7 @@
 #include "array.h"
 
 Triangle *triangles_to_render = NULL;
-Vec3 camera_position = { 0, 0, -5 };
+Vec3 camera_position = { 0, 0, 0 };
 
 float fov_factor = 640;
 
@@ -58,7 +58,7 @@ bool setup(void) {
         return false;
     }
 
-    load_obj_file("res/f22.obj");
+    load_obj_file("res/cube.obj");
 
     return true;
 }
@@ -115,6 +115,9 @@ void update(void) {
 
         Triangle projected_triangle;
 
+        Vec3 transformed_vertices[3];
+
+        // Tranform
         for (int j = 0; j < 3; j++) {
             Vec3 vertex = face_vertices[j];
 
@@ -125,10 +128,40 @@ void update(void) {
             transformed_vertex = vec3_rotate_z(transformed_vertex, mesh.rotation.z);
 
             // Translate the vertex away from the camera in z
-            transformed_vertex.z -= camera_position.z;
+            transformed_vertex.z += 5;
 
-            Vec2 projected_point = project(transformed_vertex);
+            // Save vertices in the array of vertices
+            transformed_vertices[j] = transformed_vertex;
+        }
 
+        //
+        // Backface culling
+        //
+        Vec3 vec_a = transformed_vertices[0];
+        Vec3 vec_b = transformed_vertices[1];
+        Vec3 vec_c = transformed_vertices[2];
+
+        Vec3 vec_ab = vec3_sub(vec_b, vec_a);
+        Vec3 vec_ac = vec3_sub(vec_c, vec_a);
+        vec3_normalize(&vec_ab);
+        vec3_normalize(&vec_ac);
+
+        // Face Normal
+        Vec3 normal = vec3_cross(vec_ab, vec_ac);
+        vec3_normalize(&normal);
+
+        Vec3 camera_ray = vec3_sub(camera_position, vec_a);
+        float dot_normal_camera = vec3_dot(normal, camera_ray);
+
+        // Skip triangles that are looking away from camera
+        if (dot_normal_camera < 0) {
+            continue;
+        }
+        // End Backface culling
+
+        // Projection
+        for (int j = 0; j < 3; j++) {
+            Vec2 projected_point = project(transformed_vertices[j]);
 
             // Scale and translate the projected point to the middle of the screen
             projected_point.x += (SCREEN_WIDTH / 2);
