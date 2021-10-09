@@ -16,14 +16,21 @@ extern uint32_t *color_buffer;
 extern int SCREEN_WIDTH;
 extern int SCREEN_HEIGHT;
 
+void int_swap(int *a, int *b);
+
 bool initialize_window(void);
+
 void draw_grid(uint32_t color);
 void draw_line(int x0, int y0, int x1, int y1, uint32_t color);
-void draw_triangle(Triangle tri, uint32_t color);
-void draw_points(Triangle tri, int width, int height, uint32_t color);
+void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color);
+void draw_points(int x0, int y0, int x1, int y1, int x2, int y2, int width, int height, uint32_t color);
 void draw_pixel(int x, int y, uint32_t color);
 void draw_rect(int x, int y, int width, int height, uint32_t color);
 void render_color_buffer(void);
 void clear_color_buffer(uint32_t color);
+
+void draw_filled_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color);
+void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color);
+void fill_flat_top_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color);
 void destroy_window(void);
 #endif

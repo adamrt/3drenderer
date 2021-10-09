@@ -182,9 +182,20 @@ void render(void) {
     int num_triangles = array_length(triangles_to_render);
     for (int i = 0; i < num_triangles; i++) {
         Triangle triangle = triangles_to_render[i];
-        draw_triangle(triangle, 0xFFFFFF00);
-        // draw_points(triangle, 1, 1, 0xFFFFFF00);
+        draw_filled_triangle(
+                             triangle.points[0].x, triangle.points[0].y,
+                             triangle.points[1].x, triangle.points[1].y,
+                             triangle.points[2].x, triangle.points[2].y,
+                             0xFFFFFFFF);
+
+        draw_triangle(
+                             triangle.points[0].x, triangle.points[0].y,
+                             triangle.points[1].x, triangle.points[1].y,
+                             triangle.points[2].x, triangle.points[2].y,
+                             0xFF000000);
+
     }
+
 
     array_free(triangles_to_render);
 

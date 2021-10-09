@@ -8,6 +8,12 @@ uint32_t *color_buffer = NULL;
 int SCREEN_WIDTH = 800;
 int SCREEN_HEIGHT = 600;
 
+void int_swap(int *a, int *b) {
+    int tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+
 bool initialize_window(void) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         fprintf(stderr, "Error initializing SDL\n");
@@ -68,17 +74,80 @@ void draw_line(int x0, int y0, int x1, int y1, uint32_t color) {
     }
 }
 
-// draw_line uses the DDA algorithm to draw a line
-void draw_triangle(Triangle tri, uint32_t color) {
-    draw_line(tri.points[0].x, tri.points[0].y, tri.points[1].x, tri.points[1].y, color);
-    draw_line(tri.points[1].x, tri.points[1].y, tri.points[2].x, tri.points[2].y, color);
-    draw_line(tri.points[2].x, tri.points[2].y, tri.points[0].x, tri.points[0].y, color);
+void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
+    draw_line(x0, y0, x1, y1, color);
+    draw_line(x1, y1, x2, y2, color);
+    draw_line(x2, y2, x0, y0, color);
 }
 
-void draw_points(Triangle tri, int width, int height, uint32_t color) {
-        draw_rect(tri.points[0].x, tri.points[0].y, width, height, color);
-        draw_rect(tri.points[1].x, tri.points[1].y, width, height, color);
-        draw_rect(tri.points[2].x, tri.points[2].y, width, height, color);
+void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
+    float inv_slope_1 = (x1 - x0) / (float)(y1 - y0);
+    float inv_slope_2 = (x2 - x0) / (float)(y2 - y0);
+
+    float x_start = x0;
+    float x_end = x0;
+
+    for (int y = y0; y <= y2; y++) {
+        draw_line(x_start, y, x_end, y, color);
+        x_start += inv_slope_1;
+        x_end += inv_slope_2;
+    }
+}
+
+void fill_flat_top_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
+    float inv_slope_1 = (x2 - x0) / (float)(y2 - y0);
+    float inv_slope_2 = (x2 - x1) / (float)(y2 - y1);
+
+    float x_start = x2;
+    float x_end = x2;
+
+    for (int y = y2; y >= y0; y--) {
+        draw_line(x_start, y, x_end, y, color);
+        x_start -= inv_slope_1;
+        x_end -= inv_slope_2;
+    }
+}
+
+// draw_filled_triangle uses the flat-top/flat-bottom method.
+void draw_filled_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
+    // Sort vertices by y-coord (y0 < y1 < y2)
+    if (y0 > y1) {
+        int_swap(&y0, &y1);
+        int_swap(&x0, &x1);
+    }
+
+    if (y1 > y2) {
+        int_swap(&y1, &y2);
+        int_swap(&x1, &x2);
+    }
+
+    // Do again in case y1 > y2 swapped them back
+    if (y0 > y1) {
+        int_swap(&y0, &y1);
+        int_swap(&x0, &x1);
+    }
+
+    // Calculate new vertex (Mx, My) using triangle similariy
+
+    if (y1 == y2) {
+        fill_flat_bottom_triangle(x0, y0, x1, y1, x2, y2, color);
+    } else if (y0 == y1) {
+        fill_flat_top_triangle(x0, y0, x1, y1, x2, y2, color);
+    } else {
+        int my = y1;
+        int mx = ((float)((x2 - x0) * (y1 - y0)) / (float) (y2 - y0)) + x0;
+        fill_flat_bottom_triangle(x0, y0, x1, y1, mx, my, color);
+        fill_flat_top_triangle(x1, y1, mx, my, x2, y2, color);
+    }
+
+
+
+}
+
+void draw_points(int x0, int y0, int x1, int y1, int x2, int y2, int width, int height, uint32_t color) {
+    draw_rect(x0, y0, width, height, color);
+    draw_rect(x1, y1, width, height, color);
+    draw_rect(x2, y2, width, height, color);
 }
 
 
