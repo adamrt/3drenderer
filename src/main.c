@@ -12,22 +12,22 @@
 #include "vector.h"
 
 
-Triangle *triangles_to_render = NULL;
-Vec3 camera_position = { 0, 0, 0 };
+triangle_t *triangles_to_render = NULL;
+vec3_t camera_position = { 0, 0, 0 };
 
 float fov_factor = 640;
 
 bool is_running = false;
 int previous_frame_time = 0;
 
-Options options;
+options_t options;
 
 bool setup(void);
 void process_input(void);
 void update(void);
 void render(void);
 void free_resources(void);
-void sort_triangles_by_z(Triangle *tris);
+void sort_triangles_by_z(triangle_t *tris);
 
 int main(void){
     if (!initialize_window()) {
@@ -99,8 +99,8 @@ void process_input(void) {
 }
 
 
-Vec2 project(Vec3 point) {
-    Vec2 projected_point = {
+vec2_t project(vec3_t point) {
+    vec2_t projected_point = {
         .x = (fov_factor * point.x) / point.z,
         .y = (fov_factor * point.y) / point.z
     };
@@ -123,23 +123,23 @@ void update(void) {
 
     int num_faces = array_length(mesh.faces);
     for (int i = 0; i < num_faces; i++) {
-        Face mesh_face = mesh.faces[i];
+        face_t mesh_face = mesh.faces[i];
 
-        Vec3 face_vertices[3];
+        vec3_t face_vertices[3];
 
         // Offset for 0 vs 1-index
         face_vertices[0] = mesh.vertices[mesh_face.a - 1];
         face_vertices[1] = mesh.vertices[mesh_face.b - 1];
         face_vertices[2] = mesh.vertices[mesh_face.c - 1];
 
-        Vec3 transformed_vertices[3];
+        vec3_t transformed_vertices[3];
 
         // Tranform
         for (int j = 0; j < 3; j++) {
-            Vec3 vertex = face_vertices[j];
+            vec3_t vertex = face_vertices[j];
 
             // Rotate the vertex
-            Vec3 transformed_vertex;
+            vec3_t transformed_vertex;
             transformed_vertex = vec3_rotate_x(vertex, mesh.rotation.x);
             transformed_vertex = vec3_rotate_y(transformed_vertex, mesh.rotation.y);
             transformed_vertex = vec3_rotate_z(transformed_vertex, mesh.rotation.z);
@@ -153,20 +153,20 @@ void update(void) {
 
         // Backface culling
         if (options.enable_backface_culling) {
-            Vec3 vec_a = transformed_vertices[0];
-            Vec3 vec_b = transformed_vertices[1];
-            Vec3 vec_c = transformed_vertices[2];
+            vec3_t vec_a = transformed_vertices[0];
+            vec3_t vec_b = transformed_vertices[1];
+            vec3_t vec_c = transformed_vertices[2];
 
-            Vec3 vec_ab = vec3_sub(vec_b, vec_a);
-            Vec3 vec_ac = vec3_sub(vec_c, vec_a);
+            vec3_t vec_ab = vec3_sub(vec_b, vec_a);
+            vec3_t vec_ac = vec3_sub(vec_c, vec_a);
             vec3_normalize(&vec_ab);
             vec3_normalize(&vec_ac);
 
-            // Face Normal
-            Vec3 normal = vec3_cross(vec_ab, vec_ac);
+            // face_t Normal
+            vec3_t normal = vec3_cross(vec_ab, vec_ac);
             vec3_normalize(&normal);
 
-            Vec3 camera_ray = vec3_sub(camera_position, vec_a);
+            vec3_t camera_ray = vec3_sub(camera_position, vec_a);
             float dot_normal_camera = vec3_dot(normal, camera_ray);
 
             // Skip triangles that are looking away from camera
@@ -176,7 +176,7 @@ void update(void) {
         }
 
         // Projection
-        Vec2 projected_points[3];
+        vec2_t projected_points[3];
         for (int j = 0; j < 3; j++) {
             projected_points[j] = project(transformed_vertices[j]);
 
@@ -187,7 +187,7 @@ void update(void) {
 
         float avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3.0;
 
-        Triangle projected_triangle = {
+        triangle_t projected_triangle = {
             .points = {
                 { projected_points[0].x, projected_points[0].y },
                 { projected_points[1].x, projected_points[1].y },
@@ -209,7 +209,7 @@ void render(void) {
 
     int num_triangles = array_length(triangles_to_render);
     for (int i = 0; i < num_triangles; i++) {
-        Triangle triangle = triangles_to_render[i];
+        triangle_t triangle = triangles_to_render[i];
 
         if (options.enable_fill_triangles) {
             draw_filled_triangle(
@@ -245,7 +245,7 @@ void free_resources(void) {
 }
 
 // TODO: this is bubble sort-ish. change to merge sort or something faster.
-void sort_triangles_by_z(Triangle *tris) {
+void sort_triangles_by_z(triangle_t *tris) {
    // z gets higher further into the screen (left handed);
    // higher numbers should be first
    int num_tris = array_length(tris);
@@ -254,7 +254,7 @@ void sort_triangles_by_z(Triangle *tris) {
         // use num_tris - 1 because we use i+1 for b;
         for (int i = 0; i < (num_tris - 1); i++) {
             if (tris[i].avg_depth < tris[i+1].avg_depth) {
-                Triangle tmp = tris[i];
+                triangle_t tmp = tris[i];
                 tris[i] = tris[i+1];
                 tris[i+1]  = tmp;
                 has_changed = true;

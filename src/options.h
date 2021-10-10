@@ -3,14 +3,14 @@
 
 #include "stdbool.h"
 
-typedef struct Options {
+typedef struct options_t {
     bool enable_backface_culling;
     bool enable_wireframe;
     bool enable_fill_triangles;
-} Options;
+} options_t;
 
-Options new_options(void) {
-    Options opt = {
+options_t new_options(void) {
+    options_t opt = {
         .enable_backface_culling = true,
         .enable_wireframe = true,
         .enable_fill_triangles = true,
