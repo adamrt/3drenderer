@@ -64,7 +64,8 @@ bool setup(void) {
         return false;
     }
 
-    load_obj_file("res/cube.obj");
+    load_cube_mesh_data();
+    // load_obj_file("res/cube.obj");
 
     return true;
 }
@@ -128,8 +129,6 @@ void update(void) {
         face_vertices[1] = mesh.vertices[mesh_face.b - 1];
         face_vertices[2] = mesh.vertices[mesh_face.c - 1];
 
-        Triangle projected_triangle;
-
         Vec3 transformed_vertices[3];
 
         // Tranform
@@ -174,16 +173,25 @@ void update(void) {
         }
 
         // Projection
+
+        Vec2 projected_points[3];
+
         for (int j = 0; j < 3; j++) {
-            Vec2 projected_point = project(transformed_vertices[j]);
+            projected_points[j] = project(transformed_vertices[j]);
 
             // Scale and translate the projected point to the middle of the screen
-            projected_point.x += (SCREEN_WIDTH / 2);
-            projected_point.y += (SCREEN_HEIGHT / 2);
-
-            projected_triangle.points[j] = projected_point;
-
+            projected_points[j].x += (SCREEN_WIDTH / 2);
+            projected_points[j].y += (SCREEN_HEIGHT / 2);
         }
+
+        Triangle projected_triangle = {
+            .points = {
+                { projected_points[0].x, projected_points[0].y },
+                { projected_points[1].x, projected_points[1].y },
+                { projected_points[2].x, projected_points[2].y },
+            },
+            .color = mesh_face.color
+        };
 
         // Save the projected triangle into the triangles to render.
         array_push(triangles_to_render, projected_triangle);
@@ -202,7 +210,7 @@ void render(void) {
                                  triangle.points[0].x, triangle.points[0].y,
                                  triangle.points[1].x, triangle.points[1].y,
                                  triangle.points[2].x, triangle.points[2].y,
-                                 0xFF333333);
+                                 triangle.color);
         }
 
         if (options.enable_wireframe) {
