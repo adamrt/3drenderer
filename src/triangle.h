@@ -15,6 +15,7 @@ typedef struct Face {
 typedef struct Triangle {
     Vec2 points[3];
     uint32_t color;
+    float avg_depth;
 } Triangle;
 
 #endif

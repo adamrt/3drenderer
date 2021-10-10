@@ -1,13 +1,15 @@
-#include <stdio.h>
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+
 #include <SDL2/SDL.h>
-#include "display.h"
-#include "vector.h"
-#include "mesh.h"
-#include "triangle.h"
-#include "options.h"
+
 #include "array.h"
+#include "display.h"
+#include "mesh.h"
+#include "options.h"
+#include "triangle.h"
+#include "vector.h"
 
 
 Triangle *triangles_to_render = NULL;
@@ -25,6 +27,7 @@ void process_input(void);
 void update(void);
 void render(void);
 void free_resources(void);
+void sort_triangles_by_z(Triangle *tris);
 
 int main(void){
     if (!initialize_window()) {
@@ -173,9 +176,7 @@ void update(void) {
         }
 
         // Projection
-
         Vec2 projected_points[3];
-
         for (int j = 0; j < 3; j++) {
             projected_points[j] = project(transformed_vertices[j]);
 
@@ -184,18 +185,23 @@ void update(void) {
             projected_points[j].y += (SCREEN_HEIGHT / 2);
         }
 
+        float avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3.0;
+
         Triangle projected_triangle = {
             .points = {
                 { projected_points[0].x, projected_points[0].y },
                 { projected_points[1].x, projected_points[1].y },
                 { projected_points[2].x, projected_points[2].y },
             },
-            .color = mesh_face.color
+            .color = mesh_face.color,
+            .avg_depth = avg_depth,
         };
 
         // Save the projected triangle into the triangles to render.
         array_push(triangles_to_render, projected_triangle);
     }
+
+    sort_triangles_by_z(triangles_to_render);
 }
 
 void render(void) {
@@ -236,4 +242,26 @@ void free_resources(void) {
     free(color_buffer);
     array_free(mesh.faces);
     array_free(mesh.vertices);
+}
+
+// TODO: this is bubble sort-ish. change to merge sort or something faster.
+void sort_triangles_by_z(Triangle *tris) {
+   // z gets higher further into the screen (left handed);
+   // higher numbers should be first
+   int num_tris = array_length(tris);
+    while(true) {
+        bool has_changed = false;
+        // use num_tris - 1 because we use i+1 for b;
+        for (int i = 0; i < (num_tris - 1); i++) {
+            if (tris[i].avg_depth < tris[i+1].avg_depth) {
+                Triangle tmp = tris[i];
+                tris[i] = tris[i+1];
+                tris[i+1]  = tmp;
+                has_changed = true;
+            }
+        }
+        if (has_changed == false) {
+            break;
+        }
+    }
 }
