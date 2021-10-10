@@ -6,7 +6,9 @@
 #include "vector.h"
 #include "mesh.h"
 #include "triangle.h"
+#include "options.h"
 #include "array.h"
+
 
 Triangle *triangles_to_render = NULL;
 Vec3 camera_position = { 0, 0, 0 };
@@ -15,6 +17,8 @@ float fov_factor = 640;
 
 bool is_running = false;
 int previous_frame_time = 0;
+
+Options options;
 
 bool setup(void);
 void process_input(void);
@@ -46,6 +50,8 @@ int main(void){
 }
 
 bool setup(void) {
+    options = new_options();
+
     color_buffer = malloc((int)sizeof(uint32_t) * SCREEN_WIDTH * SCREEN_HEIGHT);
     if (!color_buffer) {
         fprintf(stderr, "Error allocating for color_buffer\n");
@@ -74,6 +80,15 @@ void process_input(void) {
     case SDL_KEYDOWN:
         if (event.key.keysym.sym == SDLK_ESCAPE) {
             is_running = false;
+        }
+        if (event.key.keysym.sym == SDLK_1) {
+            options.enable_backface_culling = !options.enable_backface_culling;
+        }
+        if (event.key.keysym.sym == SDLK_2) {
+            options.enable_wireframe = !options.enable_wireframe;
+        }
+        if (event.key.keysym.sym == SDLK_3) {
+            options.enable_fill_triangles = !options.enable_fill_triangles;
         }
         break;
     }
@@ -134,30 +149,29 @@ void update(void) {
             transformed_vertices[j] = transformed_vertex;
         }
 
-        //
         // Backface culling
-        //
-        Vec3 vec_a = transformed_vertices[0];
-        Vec3 vec_b = transformed_vertices[1];
-        Vec3 vec_c = transformed_vertices[2];
+        if (options.enable_backface_culling) {
+            Vec3 vec_a = transformed_vertices[0];
+            Vec3 vec_b = transformed_vertices[1];
+            Vec3 vec_c = transformed_vertices[2];
 
-        Vec3 vec_ab = vec3_sub(vec_b, vec_a);
-        Vec3 vec_ac = vec3_sub(vec_c, vec_a);
-        vec3_normalize(&vec_ab);
-        vec3_normalize(&vec_ac);
+            Vec3 vec_ab = vec3_sub(vec_b, vec_a);
+            Vec3 vec_ac = vec3_sub(vec_c, vec_a);
+            vec3_normalize(&vec_ab);
+            vec3_normalize(&vec_ac);
 
-        // Face Normal
-        Vec3 normal = vec3_cross(vec_ab, vec_ac);
-        vec3_normalize(&normal);
+            // Face Normal
+            Vec3 normal = vec3_cross(vec_ab, vec_ac);
+            vec3_normalize(&normal);
 
-        Vec3 camera_ray = vec3_sub(camera_position, vec_a);
-        float dot_normal_camera = vec3_dot(normal, camera_ray);
+            Vec3 camera_ray = vec3_sub(camera_position, vec_a);
+            float dot_normal_camera = vec3_dot(normal, camera_ray);
 
-        // Skip triangles that are looking away from camera
-        if (dot_normal_camera < 0) {
-            continue;
+            // Skip triangles that are looking away from camera
+            if (dot_normal_camera < 0) {
+                continue;
+            }
         }
-        // End Backface culling
 
         // Projection
         for (int j = 0; j < 3; j++) {
@@ -182,17 +196,22 @@ void render(void) {
     int num_triangles = array_length(triangles_to_render);
     for (int i = 0; i < num_triangles; i++) {
         Triangle triangle = triangles_to_render[i];
-        draw_filled_triangle(
-                             triangle.points[0].x, triangle.points[0].y,
-                             triangle.points[1].x, triangle.points[1].y,
-                             triangle.points[2].x, triangle.points[2].y,
-                             0xFFFFFFFF);
 
-        draw_triangle(
-                             triangle.points[0].x, triangle.points[0].y,
-                             triangle.points[1].x, triangle.points[1].y,
-                             triangle.points[2].x, triangle.points[2].y,
-                             0xFF000000);
+        if (options.enable_fill_triangles) {
+            draw_filled_triangle(
+                                 triangle.points[0].x, triangle.points[0].y,
+                                 triangle.points[1].x, triangle.points[1].y,
+                                 triangle.points[2].x, triangle.points[2].y,
+                                 0xFF333333);
+        }
+
+        if (options.enable_wireframe) {
+            draw_triangle(
+                          triangle.points[0].x, triangle.points[0].y,
+                          triangle.points[1].x, triangle.points[1].y,
+                          triangle.points[2].x, triangle.points[2].y,
+                          0xFFFFFF00);
+        }
 
     }
 
