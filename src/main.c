@@ -5,6 +5,7 @@
 
 #include "array.h"
 #include "display.h"
+#include "light.h"
 #include "matrix.h"
 #include "mesh.h"
 #include "options.h"
@@ -77,8 +78,8 @@ bool setup(void) {
     float zfar = 100.0;
     proj_matrix = mat4_make_perspective(fov, aspect, znear, zfar);
 
-    load_cube_mesh_data();
-    // load_obj_file("res/cube.obj");
+    // load_cube_mesh_data();
+    load_obj_file("res/f22.obj");
 
     return true;
 }
@@ -119,7 +120,7 @@ void update(void) {
 
     mesh.rotation.x += 0.02;
     /* mesh.rotation.y += 0.02; */
-    // mesh.rotation.z += 0.02;
+    /* mesh.rotation.z += 0.02; */
     // mesh.scale.x += 0.002;
     // mesh.scale.y += 0.001;
     // mesh.translation.x += 0.01;
@@ -165,24 +166,25 @@ void update(void) {
         }
 
         // Backface culling
+        vec3_t vec_a = vec3_from_vec4(transformed_vertices[0]);
+        vec3_t vec_b = vec3_from_vec4(transformed_vertices[1]);
+        vec3_t vec_c = vec3_from_vec4(transformed_vertices[2]);
+
+        vec3_t vec_ab = vec3_sub(vec_b, vec_a);
+        vec3_t vec_ac = vec3_sub(vec_c, vec_a);
+        vec3_normalize(&vec_ab);
+        vec3_normalize(&vec_ac);
+
+        // face_t Normal
+        vec3_t normal = vec3_cross(vec_ab, vec_ac);
+        vec3_normalize(&normal);
+
+        vec3_t camera_ray = vec3_sub(camera_position, vec_a);
+        float dot_normal_camera = vec3_dot(normal, camera_ray);
+
+        // Skip triangles that are looking away from camera.  Calculate backface culling
+        // above as we need the normal calculation below for lighting.
         if (options.enable_backface_culling) {
-            vec3_t vec_a = vec3_from_vec4(transformed_vertices[0]);
-            vec3_t vec_b = vec3_from_vec4(transformed_vertices[1]);
-            vec3_t vec_c = vec3_from_vec4(transformed_vertices[2]);
-
-            vec3_t vec_ab = vec3_sub(vec_b, vec_a);
-            vec3_t vec_ac = vec3_sub(vec_c, vec_a);
-            vec3_normalize(&vec_ab);
-            vec3_normalize(&vec_ac);
-
-            // face_t Normal
-            vec3_t normal = vec3_cross(vec_ab, vec_ac);
-            vec3_normalize(&normal);
-
-            vec3_t camera_ray = vec3_sub(camera_position, vec_a);
-            float dot_normal_camera = vec3_dot(normal, camera_ray);
-
-            // Skip triangles that are looking away from camera
             if (dot_normal_camera < 0) {
                 continue;
             }
@@ -205,13 +207,16 @@ void update(void) {
 
         float avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3.0;
 
+        float light_intensity_factor = -vec3_dot(normal, light.direction);
+        uint32_t triangle_color = light_apply_intensity(mesh_face.color, light_intensity_factor);
+
         triangle_t projected_triangle = {
             .points = {
                 { projected_points[0].x, projected_points[0].y },
                 { projected_points[1].x, projected_points[1].y },
                 { projected_points[2].x, projected_points[2].y },
             },
-            .color = mesh_face.color,
+            .color = triangle_color,
             .avg_depth = avg_depth,
         };
 
@@ -264,9 +269,9 @@ void free_resources(void) {
 
 // TODO: this is bubble sort-ish. change to merge sort or something faster.
 void sort_triangles_by_z(triangle_t *tris) {
-   // z gets higher further into the screen (left handed);
-   // higher numbers should be first
-   int num_tris = array_length(tris);
+    // z gets higher further into the screen (left handed);
+    // higher numbers should be first
+    int num_tris = array_length(tris);
     while(true) {
         bool has_changed = false;
         // use num_tris - 1 because we use i+1 for b;

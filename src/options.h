@@ -12,8 +12,8 @@ typedef struct options_t {
 options_t new_options(void) {
     options_t opt = {
         .enable_backface_culling = true,
-        .enable_wireframe = true,
-        .enable_fill_triangles = false,
+        .enable_wireframe = false,
+        .enable_fill_triangles = true,
     };
     return opt;
 }
