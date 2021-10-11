@@ -13,7 +13,7 @@ options_t new_options(void) {
     options_t opt = {
         .enable_backface_culling = true,
         .enable_wireframe = true,
-        .enable_fill_triangles = true,
+        .enable_fill_triangles = false,
     };
     return opt;
 }
