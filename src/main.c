@@ -1,7 +1,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
-
 #include <SDL2/SDL.h>
 
 #include "array.h"
@@ -12,9 +11,13 @@
 #include "triangle.h"
 #include "vector.h"
 
+#ifndef M_PI
+#define M_PI (3.14159265358979323846)
+#endif
 
 triangle_t *triangles_to_render = NULL;
 vec3_t camera_position = { 0, 0, 0 };
+mat4_t proj_matrix;
 
 float fov_factor = 640;
 
@@ -68,6 +71,12 @@ bool setup(void) {
         return false;
     }
 
+    float fov = M_PI / 3.0; // 180/3 or 60deg
+    float aspect = (float)SCREEN_HEIGHT / (float)SCREEN_WIDTH;
+    float znear = 0.1;
+    float zfar = 100.0;
+    proj_matrix = mat4_make_perspective(fov, aspect, znear, zfar);
+
     load_cube_mesh_data();
     // load_obj_file("res/cube.obj");
 
@@ -97,15 +106,6 @@ void process_input(void) {
         }
         break;
     }
-}
-
-
-vec2_t project(vec3_t point) {
-    vec2_t projected_point = {
-        .x = (fov_factor * point.x) / point.z,
-        .y = (fov_factor * point.y) / point.z
-    };
-    return projected_point;
 }
 
 void update(void) {
@@ -189,13 +189,18 @@ void update(void) {
         }
 
         // Projection
-        vec2_t projected_points[3];
-        for (int j = 0; j < 3; j++) {
-            projected_points[j] = project(vec3_from_vec4(transformed_vertices[j]));
+        vec4_t projected_points[3];
 
-            // Scale and translate the projected point to the middle of the screen
-            projected_points[j].x += (SCREEN_WIDTH / 2);
-            projected_points[j].y += (SCREEN_HEIGHT / 2);
+        for (int j = 0; j < 3; j++) {
+            projected_points[j] = mat4_mul_vec4_project(proj_matrix, transformed_vertices[j]);
+
+            // Scale into the view
+            projected_points[j].x *= (SCREEN_WIDTH / 2.0);
+            projected_points[j].y *= (SCREEN_HEIGHT/ 2.0);
+
+            // Translate the projected point to the middle of the screen
+            projected_points[j].x += (SCREEN_WIDTH / 2.0);
+            projected_points[j].y += (SCREEN_HEIGHT / 2.0);
         }
 
         float avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3.0;
