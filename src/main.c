@@ -200,6 +200,11 @@ void update(void) {
             projected_points[j].x *= (SCREEN_WIDTH / 2.0);
             projected_points[j].y *= (SCREEN_HEIGHT/ 2.0);
 
+            // Invert the y value to account for flipped y coordinate.  TODO: Does this
+            // only matter for OBJ files? Should it be handled in OBJ load function so
+            // other loading function to suffer.
+            projected_points[j].y *= -1;
+
             // Translate the projected point to the middle of the screen
             projected_points[j].x += (SCREEN_WIDTH / 2.0);
             projected_points[j].y += (SCREEN_HEIGHT / 2.0);
