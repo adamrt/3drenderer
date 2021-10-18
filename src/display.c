@@ -1,5 +1,6 @@
 #include "display.h"
 #include "triangle.h"
+#include "swap.h"
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
@@ -7,12 +8,6 @@ SDL_Texture *color_buffer_texture = NULL;
 uint32_t *color_buffer = NULL;
 int SCREEN_WIDTH = 800;
 int SCREEN_HEIGHT = 600;
-
-void int_swap(int *a, int *b) {
-    int tmp = *a;
-    *a = *b;
-    *b = tmp;
-}
 
 bool initialize_window(void) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
