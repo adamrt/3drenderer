@@ -9,6 +9,7 @@
 #include "matrix.h"
 #include "mesh.h"
 #include "options.h"
+#include "texture.h"
 #include "triangle.h"
 #include "vector.h"
 
@@ -78,8 +79,12 @@ bool setup(void) {
     float zfar = 100.0;
     proj_matrix = mat4_make_perspective(fov, aspect, znear, zfar);
 
-    // load_cube_mesh_data();
-    load_obj_file("res/f22.obj");
+    mesh_texture = (uint32_t*)REDBRICK_TEXTURE;
+    texture_width = 64;
+    texture_height = 64;
+
+    load_cube_mesh_data();
+    // load_obj_file("res/f22.obj");
 
     return true;
 }
@@ -105,6 +110,12 @@ void process_input(void) {
         if (event.key.keysym.sym == SDLK_3) {
             options.enable_fill_triangles = !options.enable_fill_triangles;
         }
+        if (event.key.keysym.sym == SDLK_4) {
+            options.enable_textured_triangles = !options.enable_textured_triangles;
+            if (options.enable_textured_triangles) {
+                options.enable_fill_triangles = false;
+            }
+        }
         break;
     }
 }
@@ -119,8 +130,8 @@ void update(void) {
     triangles_to_render = NULL;
 
     mesh.rotation.x += 0.02;
-    /* mesh.rotation.y += 0.02; */
-    /* mesh.rotation.z += 0.02; */
+    mesh.rotation.y += 0.02;
+    mesh.rotation.z += 0.02;
     // mesh.scale.x += 0.002;
     // mesh.scale.y += 0.001;
     // mesh.translation.x += 0.01;
@@ -221,6 +232,11 @@ void update(void) {
                 { projected_points[1].x, projected_points[1].y },
                 { projected_points[2].x, projected_points[2].y },
             },
+            .texcoords = {
+                { mesh_face.a_uv.u, mesh_face.a_uv.v },
+                { mesh_face.b_uv.u, mesh_face.b_uv.v },
+                { mesh_face.c_uv.u, mesh_face.c_uv.v },
+            },
             .color = triangle_color,
             .avg_depth = avg_depth,
         };
@@ -238,6 +254,14 @@ void render(void) {
     int num_triangles = array_length(triangles_to_render);
     for (int i = 0; i < num_triangles; i++) {
         triangle_t triangle = triangles_to_render[i];
+
+        if (options.enable_textured_triangles) {
+            draw_textured_triangle(
+                                   triangle.points[0].x, triangle.points[0].y, triangle.texcoords[0].u, triangle.texcoords[0].v,
+                                   triangle.points[1].x, triangle.points[1].y, triangle.texcoords[1].u, triangle.texcoords[1].v,
+                                   triangle.points[2].x, triangle.points[2].y, triangle.texcoords[2].u, triangle.texcoords[2].v,
+                                   mesh_texture);
+        }
 
         if (options.enable_fill_triangles) {
             draw_filled_triangle(
