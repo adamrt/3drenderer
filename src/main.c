@@ -58,7 +58,7 @@ int main(void){
 }
 
 bool setup(void) {
-    options = new_options();
+    options = options_default();
 
     color_buffer = malloc((int)sizeof(uint32_t) * SCREEN_WIDTH * SCREEN_HEIGHT);
     if (!color_buffer) {

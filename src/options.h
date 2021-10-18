@@ -7,15 +7,9 @@ typedef struct options_t {
     bool enable_backface_culling;
     bool enable_wireframe;
     bool enable_fill_triangles;
+    bool enable_textured_triangles;
 } options_t;
 
-options_t new_options(void) {
-    options_t opt = {
-        .enable_backface_culling = true,
-        .enable_wireframe = false,
-        .enable_fill_triangles = true,
-    };
-    return opt;
-}
+options_t options_default(void);
 
 #endif
