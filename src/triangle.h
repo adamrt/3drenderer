@@ -20,4 +20,6 @@ typedef struct triangle_t {
     float avg_depth;
 } triangle_t;
 
+void sort_triangles_by_z(triangle_t *tris);
+
 #endif
