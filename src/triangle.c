@@ -1,13 +1,13 @@
 #include <stdbool.h>
 
 #include "array.h"
-#include "triangle.h"
 #include "display.h"
 #include "swap.h"
+#include "triangle.h"
 
 void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
-    float inv_slope_1 = (x1 - x0) / (float)(y1 - y0);
-    float inv_slope_2 = (x2 - x0) / (float)(y2 - y0);
+    float inv_slope_1 = (float)(x1 - x0) / (y1 - y0);
+    float inv_slope_2 = (float)(x2 - x0) / (y2 - y0);
 
     float x_start = x0;
     float x_end = x0;
@@ -20,8 +20,8 @@ void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int x2, int y2, u
 }
 
 void fill_flat_top_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
-    float inv_slope_1 = (x2 - x0) / (float)(y2 - y0);
-    float inv_slope_2 = (x2 - x1) / (float)(y2 - y1);
+    float inv_slope_1 = (float)(x2 - x0) / (y2 - y0);
+    float inv_slope_2 = (float)(x2 - x1) / (y2 - y1);
 
     float x_start = x2;
     float x_end = x2;
@@ -59,14 +59,11 @@ void draw_filled_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32
     } else if (y0 == y1) {
         fill_flat_top_triangle(x0, y0, x1, y1, x2, y2, color);
     } else {
-        int my = y1;
-        int mx = ((float)((x2 - x0) * (y1 - y0)) / (float) (y2 - y0)) + x0;
-        fill_flat_bottom_triangle(x0, y0, x1, y1, mx, my, color);
-        fill_flat_top_triangle(x1, y1, mx, my, x2, y2, color);
+        int My = y1;
+        int Mx = (((x2 - x0) * (y1 - y0)) / (y2 - y0)) + x0;
+        fill_flat_bottom_triangle(x0, y0, x1, y1, Mx, My, color);
+        fill_flat_top_triangle(x1, y1, Mx, My, x2, y2, color);
     }
-
-
-
 }
 
 void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
@@ -108,11 +105,14 @@ void draw_texel(int x, int y,
     float beta = weights.y;
     float gamma = weights.z;
 
-    float interpolated_u = (a_uv.u / point_a.w) * alpha + (b_uv.u / point_b.w) * beta + (c_uv.u / point_c.w) * gamma;
-    float interpolated_v = (a_uv.v / point_a.w) * alpha + (b_uv.v / point_b.w) * beta + (c_uv.v / point_c.w) * gamma;
+    float interpolated_u;
+    float interpolated_v;
+    float interpolated_reciprocal_w;
 
-    float interpolated_reciprocal_w = (1 / point_a.w) * alpha + (1 / point_b.w) * beta + (1 / point_c.w) * gamma;
+    interpolated_u = (a_uv.u / point_a.w) * alpha + (b_uv.u / point_b.w) * beta + (c_uv.u / point_c.w) * gamma;
+    interpolated_v = (a_uv.v / point_a.w) * alpha + (b_uv.v / point_b.w) * beta + (c_uv.v / point_c.w) * gamma;
 
+    interpolated_reciprocal_w = (1 / point_a.w) * alpha + (1 / point_b.w) * beta + (1 / point_c.w) * gamma;
     interpolated_u /= interpolated_reciprocal_w;
     interpolated_v /= interpolated_reciprocal_w;
 
@@ -184,7 +184,6 @@ void draw_textured_triangle(int x0, int y0, float z0, float w0, float u0, float 
                            texture,
                            point_a, point_b, point_c,
                            a_uv, b_uv, c_uv);
-
             }
         }
     }

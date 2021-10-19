@@ -1,14 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "mesh.h"
+
 #include "array.h"
+#include "mesh.h"
 
 mesh_t mesh = {
     .vertices = NULL,
     .faces = NULL,
     .rotation = { 0, 0, 0 },
-    .scale = { 1, 1, 1 },
+    .scale = { 1.0, 1.0, 1.0 },
     .translation = { 0, 0, 0 }
 };
 
@@ -63,7 +64,7 @@ void load_obj_file(char *filename) {
     }
 
     char line[1024];
-    while ((fgets(line, 1000, file))) {
+    while (fgets(line, 1024, file)) {
         if (strncmp(line, "v ", 2) == 0) {
             vec3_t vertex;
             sscanf(line, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);

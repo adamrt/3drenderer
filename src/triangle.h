@@ -2,8 +2,8 @@
 #define TRIANGLE_H
 
 #include <stdint.h>
-#include "vector.h"
 #include "texture.h"
+#include "vector.h"
 
 // face_t stores the _indexes_ of the vertex.
 typedef struct face_t {
