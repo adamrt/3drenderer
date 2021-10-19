@@ -14,7 +14,7 @@ typedef struct face_t {
 
 // triangle_t stores the vec2 points for the projected triangle.
 typedef struct triangle_t {
-    vec2_t points[3];
+    vec4_t points[3];
     tex2_t texcoords[3];
     uint32_t color;
     float avg_depth;
