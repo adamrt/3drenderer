@@ -113,6 +113,7 @@ void draw_texel(int x, int y,
     interpolated_v = (a_uv.v / point_a.w) * alpha + (b_uv.v / point_b.w) * beta + (c_uv.v / point_c.w) * gamma;
 
     interpolated_reciprocal_w = (1 / point_a.w) * alpha + (1 / point_b.w) * beta + (1 / point_c.w) * gamma;
+
     interpolated_u /= interpolated_reciprocal_w;
     interpolated_v /= interpolated_reciprocal_w;
 
@@ -120,7 +121,13 @@ void draw_texel(int x, int y,
     int tex_x = abs((int)(interpolated_u * texture_width)) % texture_width;
     int tex_y = abs((int)(interpolated_v * texture_height)) % texture_height;
 
-    draw_pixel(x, y, texture[(texture_width * tex_y) + tex_x]);
+    interpolated_reciprocal_w = 1.0 - interpolated_reciprocal_w;
+
+    // Only draw the pixel if the depth is less than the existing one
+    if (interpolated_reciprocal_w < z_buffer[(SCREEN_WIDTH * y) + x]) {
+        draw_pixel(x, y, texture[(texture_width * tex_y) + tex_x]);
+        z_buffer[(SCREEN_WIDTH * y) + x] = interpolated_reciprocal_w;
+    }
 }
 
 void draw_textured_triangle(int x0, int y0, float z0, float w0, float u0, float v0,

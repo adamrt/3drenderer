@@ -60,9 +60,15 @@ int main(void){
 bool setup(void) {
     options = options_default();
 
-    color_buffer = malloc((int)sizeof(uint32_t) * SCREEN_WIDTH * SCREEN_HEIGHT);
+    color_buffer = malloc(sizeof(uint32_t) * SCREEN_WIDTH * SCREEN_HEIGHT);
     if (!color_buffer) {
         fprintf(stderr, "Error allocating for color_buffer\n");
+        return false;
+    }
+
+    z_buffer = malloc(sizeof(float) * SCREEN_WIDTH * SCREEN_HEIGHT);
+    if (!z_buffer) {
+        fprintf(stderr, "Error allocating for z_buffer\n");
         return false;
     }
 
@@ -83,8 +89,8 @@ bool setup(void) {
     /* texture_height = 64; */
 
     // load_cube_mesh_data();
-    load_obj_file_data("res/f22.obj");
-    load_png_texture_data("./res/f22.png");
+    load_obj_file_data("res/crab.obj");
+    load_png_texture_data("./res/crab.png");
 
     return true;
 }
@@ -285,13 +291,16 @@ void render(void) {
     array_free(triangles_to_render);
 
     render_color_buffer();
+
     clear_color_buffer(0xFF000000);
+    clear_z_buffer();
 
     SDL_RenderPresent(renderer);
 }
 
 void free_resources(void) {
     free(color_buffer);
+    free(z_buffer);
     upng_free(png_texture);
     array_free(mesh.faces);
     array_free(mesh.vertices);
