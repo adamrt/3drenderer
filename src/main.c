@@ -11,6 +11,7 @@
 #include "options.h"
 #include "texture.h"
 #include "triangle.h"
+#include "upng.h"
 #include "vector.h"
 
 #ifndef M_PI
@@ -65,7 +66,7 @@ bool setup(void) {
         return false;
     }
 
-    color_buffer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
+    color_buffer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
     if (!color_buffer_texture) {
         fprintf(stderr, "Error creating texture\n");
         return false;
@@ -77,12 +78,13 @@ bool setup(void) {
     float zfar = 100.0;
     proj_matrix = mat4_make_perspective(fov, aspect, znear, zfar);
 
-    mesh_texture = (uint32_t*)REDBRICK_TEXTURE;
-    texture_width = 64;
-    texture_height = 64;
+    /* mesh_texture = (uint32_t*)REDBRICK_TEXTURE; */
+    /* texture_width = 64; */
+    /* texture_height = 64; */
 
     load_cube_mesh_data();
-    // load_obj_file("res/f22.obj");
+    load_png_texture_data("./res/cube.png");
+    // load_obj_file_data("res/f22.obj");
 
     return true;
 }
@@ -127,9 +129,9 @@ void update(void) {
 
     triangles_to_render = NULL;
 
-    mesh.rotation.x += 0.02;
+    // mesh.rotation.x += 0.02;
     mesh.rotation.y += 0.02;
-    mesh.rotation.z += 0.02;
+    // mesh.rotation.z += 0.02;
     // mesh.scale.x += 0.002;
     // mesh.scale.y += 0.001;
     // mesh.translation.x += 0.01;
@@ -290,6 +292,7 @@ void render(void) {
 
 void free_resources(void) {
     free(color_buffer);
+    upng_free(png_texture);
     array_free(mesh.faces);
     array_free(mesh.vertices);
 }
