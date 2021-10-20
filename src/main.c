@@ -88,10 +88,6 @@ bool setup(void) {
     float zfar = 100.0;
     proj_matrix = mat4_make_perspective(fov, aspect, znear, zfar);
 
-    /* mesh_texture = (uint32_t*)REDBRICK_TEXTURE; */
-    /* texture_width = 64; */
-    /* texture_height = 64; */
-
     // load_cube_mesh_data();
     load_obj_file_data("res/f22.obj");
     load_png_texture_data("./res/f22.png");
