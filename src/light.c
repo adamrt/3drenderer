@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include "light.h"
 
-light_t light = {
+Light light = {
     .direction = { 0, 0, 1 }
 };
 

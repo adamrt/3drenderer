@@ -4,9 +4,9 @@
 #include <stdint.h>
 #include "upng.h"
 
-typedef struct tex2_t {
+typedef struct {
     float u, v;
-} tex2_t;
+} Tex2;
 
 extern int texture_width;
 extern int texture_height;

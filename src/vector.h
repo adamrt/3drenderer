@@ -1,49 +1,50 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-typedef struct vec2_t {
+typedef struct {
     float x, y;
-} vec2_t;
+} Vec2;
 
-typedef struct vec3_t {
+typedef struct {
     float x, y, z;
-} vec3_t;
+} Vec3;
 
-typedef struct vec4_t {
+typedef struct {
     float x, y, z, w;
-} vec4_t;
+} Vec4;
 
 //
-// vec2_t
+// Vec2
 //
-float vec2_length(vec2_t v);
-vec2_t vec2_add(vec2_t a, vec2_t b);
-vec2_t vec2_sub(vec2_t a, vec2_t b);
-vec2_t vec2_mul(vec2_t v, float factor);
-vec2_t vec2_div(vec2_t v, float factor);
-void vec2_normalize(vec2_t *v);
+Vec2 vec2_add(Vec2 a, Vec2 b);
+Vec2 vec2_sub(Vec2 a, Vec2 b);
+Vec2 vec2_mul(Vec2 v, float factor);
+Vec2 vec2_div(Vec2 v, float factor);
+
+float vec2_length(Vec2 v);
+void vec2_normalize(Vec2 *v);
 
 //
-// vec3_t
+// Vec3
 //
-float vec3_length(vec3_t v);
-vec3_t vec3_add(vec3_t a, vec3_t b);
-vec3_t vec3_sub(vec3_t a, vec3_t b);
-vec3_t vec3_mul(vec3_t v, float factor);
-vec3_t vec3_div(vec3_t v, float factor);
-vec3_t vec3_cross(vec3_t a, vec3_t b);
-float vec3_dot(vec3_t a, vec3_t b);
-void vec3_normalize(vec3_t *v);
+Vec3 vec3_add(Vec3 a, Vec3 b);
+Vec3 vec3_sub(Vec3 a, Vec3 b);
+Vec3 vec3_mul(Vec3 v, float factor);
+Vec3 vec3_div(Vec3 v, float factor);
+Vec3 vec3_cross(Vec3 a, Vec3 b);
+float vec3_dot(Vec3 a, Vec3 b);
+float vec3_length(Vec3 v);
+void vec3_normalize(Vec3 *v);
 
-vec3_t vec3_rotate_x(vec3_t v, float angle);
-vec3_t vec3_rotate_y(vec3_t v, float angle);
-vec3_t vec3_rotate_z(vec3_t v, float angle);
+Vec3 vec3_rotate_x(Vec3 v, float angle);
+Vec3 vec3_rotate_y(Vec3 v, float angle);
+Vec3 vec3_rotate_z(Vec3 v, float angle);
 
 //
 // vector conversions
 //
-vec4_t vec4_from_vec3(vec3_t v);
-vec3_t vec3_from_vec4(vec4_t v);
-vec2_t vec2_from_vec4(vec4_t v);
+Vec4 vec4_from_vec3(Vec3 v);
+Vec3 vec3_from_vec4(Vec4 v);
+Vec2 vec2_from_vec4(Vec4 v);
 
 #endif

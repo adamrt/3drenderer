@@ -4,16 +4,16 @@
 #include "vector.h"
 #include "triangle.h"
 
-typedef struct mesh_t {
-    vec3_t *vertices;   // dynamic array
-    face_t *faces;      // dynamic array
+typedef struct {
+    Vec3 *vertices;   // dynamic array
+    Face *faces;      // dynamic array
 
-    vec3_t rotation;    // rotation with x, y, z values
-    vec3_t scale;       // scale with x, y, z values
-    vec3_t translation; // trans with x, y, z values
-} mesh_t;
+    Vec3 rotation;    // rotation with x, y, z values
+    Vec3 scale;       // scale with x, y, z values
+    Vec3 translation; // trans with x, y, z values
+} Mesh;
 
-extern mesh_t mesh;
+extern Mesh mesh;
 
 void load_cube_mesh_data(void);
 void load_obj_file_data(char *filename);

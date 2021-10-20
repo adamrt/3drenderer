@@ -5,26 +5,26 @@
 #include "texture.h"
 #include "vector.h"
 
-// face_t stores the _indexes_ of the vertex.
-typedef struct face_t {
+// Face stores the _indexes_ of the vertex.
+typedef struct {
     int a, b, c;
-    tex2_t a_uv, b_uv, c_uv;
+    Tex2 a_uv, b_uv, c_uv;
     uint32_t color;
-} face_t;
+} Face;
 
-// triangle_t stores the vec2 points for the projected triangle.
-typedef struct triangle_t {
-    vec4_t points[3];
-    tex2_t texcoords[3];
+// Triangle stores the vec2 points for the projected triangle.
+typedef struct {
+    Vec4 points[3];
+    Tex2 texcoords[3];
     uint32_t color;
-} triangle_t;
+} Triangle;
 
 void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color);
 
 void draw_triangle_pixel(
     int x, int y,
     uint32_t color,
-    vec4_t point_a, vec4_t point_b, vec4_t point_c
+    Vec4 point_a, Vec4 point_b, Vec4 point_c
 );
 
 void draw_filled_triangle(

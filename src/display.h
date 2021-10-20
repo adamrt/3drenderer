@@ -32,10 +32,10 @@ void draw_pixel(int x, int y, uint32_t color);
 void draw_rect(int x, int y, int width, int height, uint32_t color);
 void draw_texel(int x, int y,
                 uint32_t *texture,
-                vec4_t point_a, vec4_t point_b, vec4_t point_c,
-                tex2_t a_uv, tex2_t b_uv, tex2_t c_uv);
+                Vec4 point_a, Vec4 point_b, Vec4 point_c,
+                Tex2 a_uv, Tex2 b_uv, Tex2 c_uv);
 void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color);
 void fill_flat_top_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color);
-vec3_t barycentric_weight(vec2_t a, vec2_t b, vec2_t c, vec2_t p);
+Vec3 barycentric_weight(Vec2 a, Vec2 b, Vec2 c, Vec2 p);
 void destroy_window(void);
 #endif

@@ -30,9 +30,9 @@ void draw_filled_triangle(int x0, int y0, float z0, float w0,
     }
 
 
-    vec4_t point_a = { x0, y0, z0, w0 };
-    vec4_t point_b = { x1, y1, z1, w1 };
-    vec4_t point_c = { x2, y2, z2, w2 };
+    Vec4 point_a = { x0, y0, z0, w0 };
+    Vec4 point_b = { x1, y1, z1, w1 };
+    Vec4 point_c = { x2, y2, z2, w2 };
 
     float inv_slope_1 = 0;
     float inv_slope_2 = 0;
@@ -92,12 +92,12 @@ void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t colo
     draw_line(x2, y2, x0, y0, color);
 }
 
-vec3_t barycentric_weights(vec2_t a, vec2_t b, vec2_t c, vec2_t p) {
-    vec2_t ab = vec2_sub(b, a);
-    vec2_t bc = vec2_sub(c, b);
-    vec2_t ac = vec2_sub(c, a);
-    vec2_t ap = vec2_sub(p, a);
-    vec2_t bp = vec2_sub(p, b);
+Vec3 barycentric_weights(Vec2 a, Vec2 b, Vec2 c, Vec2 p) {
+    Vec2 ab = vec2_sub(b, a);
+    Vec2 bc = vec2_sub(c, b);
+    Vec2 ac = vec2_sub(c, a);
+    Vec2 ap = vec2_sub(p, a);
+    Vec2 bp = vec2_sub(p, b);
 
     float area_triangle_abc = (ab.x * ac.y - ab.y * ac.x);
 
@@ -105,21 +105,21 @@ vec3_t barycentric_weights(vec2_t a, vec2_t b, vec2_t c, vec2_t p) {
     float beta = (ap.x * ac.y - ac.x * ap.y) / area_triangle_abc;
     float gamma = 1 - alpha - beta;
 
-    vec3_t weights = { alpha, beta, gamma };
+    Vec3 weights = { alpha, beta, gamma };
     return weights;
 }
 
 void draw_texel(int x, int y,
                 uint32_t *texture,
-                vec4_t point_a, vec4_t point_b, vec4_t point_c,
-                tex2_t a_uv, tex2_t b_uv, tex2_t c_uv) {
+                Vec4 point_a, Vec4 point_b, Vec4 point_c,
+                Tex2 a_uv, Tex2 b_uv, Tex2 c_uv) {
 
-    vec2_t p = { x, y };
-    vec2_t a = vec2_from_vec4(point_a);
-    vec2_t b = vec2_from_vec4(point_b);
-    vec2_t c = vec2_from_vec4(point_c);
+    Vec2 p = { x, y };
+    Vec2 a = vec2_from_vec4(point_a);
+    Vec2 b = vec2_from_vec4(point_b);
+    Vec2 c = vec2_from_vec4(point_c);
 
-    vec3_t weights = barycentric_weights(a, b, c, p);
+    Vec3 weights = barycentric_weights(a, b, c, p);
 
     float alpha = weights.x;
     float beta = weights.y;
@@ -152,14 +152,14 @@ void draw_texel(int x, int y,
 
 void draw_triangle_pixel(int x, int y,
                          uint32_t color,
-                         vec4_t point_a, vec4_t point_b, vec4_t point_c) {
+                         Vec4 point_a, Vec4 point_b, Vec4 point_c) {
 
-    vec2_t p = { x, y };
-    vec2_t a = vec2_from_vec4(point_a);
-    vec2_t b = vec2_from_vec4(point_b);
-    vec2_t c = vec2_from_vec4(point_c);
+    Vec2 p = { x, y };
+    Vec2 a = vec2_from_vec4(point_a);
+    Vec2 b = vec2_from_vec4(point_b);
+    Vec2 c = vec2_from_vec4(point_c);
 
-    vec3_t weights = barycentric_weights(a, b, c, p);
+    Vec3 weights = barycentric_weights(a, b, c, p);
 
     float alpha = weights.x;
     float beta = weights.y;
@@ -212,12 +212,12 @@ void draw_textured_triangle(int x0, int y0, float z0, float w0, float u0, float 
     v1 = 1 - v1;
     v2 = 1 - v2;
 
-    vec4_t point_a = { x0, y0, z0, w0 };
-    vec4_t point_b = { x1, y1, z1, w1 };
-    vec4_t point_c = { x2, y2, z2, w2 };
-    tex2_t a_uv = { u0, v0 };
-    tex2_t b_uv = { u1, v1 };
-    tex2_t c_uv = { u2, v2 };
+    Vec4 point_a = { x0, y0, z0, w0 };
+    Vec4 point_b = { x1, y1, z1, w1 };
+    Vec4 point_c = { x2, y2, z2, w2 };
+    Tex2 a_uv = { u0, v0 };
+    Tex2 b_uv = { u1, v1 };
+    Tex2 c_uv = { u2, v2 };
 
     float inv_slope_1 = 0;
     float inv_slope_2 = 0;

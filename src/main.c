@@ -20,18 +20,18 @@
 
 #define MAX_TRIANGLES_PER_MESH 10000
 
-triangle_t triangles_to_render[MAX_TRIANGLES_PER_MESH];
+Triangle triangles_to_render[MAX_TRIANGLES_PER_MESH];
 int num_triangles_to_render = 0;
 
-vec3_t camera_position = { 0, 0, 0 };
-mat4_t proj_matrix;
+Vec3 camera_position = { 0, 0, 0 };
+Mat4 proj_matrix;
 
 float fov_factor = 640;
 
 bool is_running = false;
 int previous_frame_time = 0;
 
-options_t options;
+Options options;
 
 bool setup(void);
 void process_input(void);
@@ -62,7 +62,10 @@ int main(void){
 }
 
 bool setup(void) {
-    options = options_default();
+    options.enable_backface_culling = true;
+    options.enable_wireframe = false;
+    options.enable_fill_triangles = false;
+    options.enable_textured_triangles = true;
 
     color_buffer = malloc(sizeof(uint32_t) * SCREEN_WIDTH * SCREEN_HEIGHT);
     if (!color_buffer) {
@@ -146,32 +149,32 @@ void update(void) {
     mesh.translation.x += 0.00;
     mesh.translation.z = 4.0;
 
-    mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
-    mat4_t rotation_matrix_x = mat4_make_rotation_x(mesh.rotation.x);
-    mat4_t rotation_matrix_y = mat4_make_rotation_y(mesh.rotation.y);
-    mat4_t rotation_matrix_z = mat4_make_rotation_z(mesh.rotation.z);
-    mat4_t translation_matrix = mat4_make_translation(mesh.translation.x, mesh.translation.y, mesh.translation.z);
+    Mat4 scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
+    Mat4 rotation_matrix_x = mat4_make_rotation_x(mesh.rotation.x);
+    Mat4 rotation_matrix_y = mat4_make_rotation_y(mesh.rotation.y);
+    Mat4 rotation_matrix_z = mat4_make_rotation_z(mesh.rotation.z);
+    Mat4 translation_matrix = mat4_make_translation(mesh.translation.x, mesh.translation.y, mesh.translation.z);
 
 
     int num_faces = array_length(mesh.faces);
     for (int i = 0; i < num_faces; i++) {
-        face_t mesh_face = mesh.faces[i];
+        Face mesh_face = mesh.faces[i];
 
-        vec3_t face_vertices[3];
+        Vec3 face_vertices[3];
 
         // Offset for 0 vs 1-index
         face_vertices[0] = mesh.vertices[mesh_face.a];
         face_vertices[1] = mesh.vertices[mesh_face.b];
         face_vertices[2] = mesh.vertices[mesh_face.c];
 
-        vec4_t transformed_vertices[3];
+        Vec4 transformed_vertices[3];
 
         // Tranform
         for (int j = 0; j < 3; j++) {
 
             // Matrix for scale, rotation and translation.
             // Order matters
-            mat4_t world_matrix = mat4_identity();
+            Mat4 world_matrix = mat4_identity();
             world_matrix = mat4_mul_mat4(scale_matrix, world_matrix);
             world_matrix = mat4_mul_mat4(rotation_matrix_z, world_matrix);
             world_matrix = mat4_mul_mat4(rotation_matrix_y, world_matrix);
@@ -179,27 +182,27 @@ void update(void) {
             world_matrix = mat4_mul_mat4(translation_matrix, world_matrix);
 
             // Mulitiple the world matrix by the original vector
-            vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
+            Vec4 transformed_vertex = vec4_from_vec3(face_vertices[j]);
             transformed_vertex = mat4_mul_vec4(world_matrix, transformed_vertex);
 
             transformed_vertices[j] = transformed_vertex;
         }
 
         // Backface culling
-        vec3_t vec_a = vec3_from_vec4(transformed_vertices[0]);
-        vec3_t vec_b = vec3_from_vec4(transformed_vertices[1]);
-        vec3_t vec_c = vec3_from_vec4(transformed_vertices[2]);
+        Vec3 vec_a = vec3_from_vec4(transformed_vertices[0]);
+        Vec3 vec_b = vec3_from_vec4(transformed_vertices[1]);
+        Vec3 vec_c = vec3_from_vec4(transformed_vertices[2]);
 
-        vec3_t vec_ab = vec3_sub(vec_b, vec_a);
-        vec3_t vec_ac = vec3_sub(vec_c, vec_a);
+        Vec3 vec_ab = vec3_sub(vec_b, vec_a);
+        Vec3 vec_ac = vec3_sub(vec_c, vec_a);
         vec3_normalize(&vec_ab);
         vec3_normalize(&vec_ac);
 
-        // face_t Normal
-        vec3_t normal = vec3_cross(vec_ab, vec_ac);
+        // Face Normal
+        Vec3 normal = vec3_cross(vec_ab, vec_ac);
         vec3_normalize(&normal);
 
-        vec3_t camera_ray = vec3_sub(camera_position, vec_a);
+        Vec3 camera_ray = vec3_sub(camera_position, vec_a);
         float dot_normal_camera = vec3_dot(normal, camera_ray);
 
         // Skip triangles that are looking away from camera.  Calculate backface culling
@@ -211,7 +214,7 @@ void update(void) {
         }
 
         // Projection
-        vec4_t projected_points[3];
+        Vec4 projected_points[3];
 
         for (int j = 0; j < 3; j++) {
             projected_points[j] = mat4_mul_vec4_project(proj_matrix, transformed_vertices[j]);
@@ -233,7 +236,7 @@ void update(void) {
         float light_intensity_factor = -vec3_dot(normal, light.direction);
         uint32_t triangle_color = light_apply_intensity(mesh_face.color, light_intensity_factor);
 
-        triangle_t projected_triangle = {
+        Triangle projected_triangle = {
             .points = {
                 { projected_points[0].x, projected_points[0].y, projected_points[0].z, projected_points[0].w },
                 { projected_points[1].x, projected_points[1].y, projected_points[1].z, projected_points[1].w },
@@ -260,7 +263,7 @@ void render(void) {
     draw_grid(0xFF333333);
 
     for (int i = 0; i < num_triangles_to_render; i++) {
-        triangle_t triangle = triangles_to_render[i];
+        Triangle triangle = triangles_to_render[i];
 
         if (options.enable_textured_triangles) {
             draw_textured_triangle(
