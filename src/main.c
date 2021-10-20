@@ -89,8 +89,8 @@ bool setup(void) {
     /* texture_height = 64; */
 
     // load_cube_mesh_data();
-    load_obj_file_data("res/crab.obj");
-    load_png_texture_data("./res/crab.png");
+    load_obj_file_data("res/f22.obj");
+    load_png_texture_data("./res/f22.png");
 
     return true;
 }
@@ -227,8 +227,6 @@ void update(void) {
             projected_points[j].y += (SCREEN_HEIGHT / 2.0);
         }
 
-        float avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3.0;
-
         float light_intensity_factor = -vec3_dot(normal, light.direction);
         uint32_t triangle_color = light_apply_intensity(mesh_face.color, light_intensity_factor);
 
@@ -244,14 +242,12 @@ void update(void) {
                 { mesh_face.c_uv.u, mesh_face.c_uv.v },
             },
             .color = triangle_color,
-            .avg_depth = avg_depth,
         };
+
 
         // Save the projected triangle into the triangles to render.
         array_push(triangles_to_render, projected_triangle);
     }
-
-    sort_triangles_by_z(triangles_to_render);
 }
 
 void render(void) {
@@ -271,9 +267,9 @@ void render(void) {
 
         if (options.enable_fill_triangles) {
             draw_filled_triangle(
-                                 triangle.points[0].x, triangle.points[0].y,
-                                 triangle.points[1].x, triangle.points[1].y,
-                                 triangle.points[2].x, triangle.points[2].y,
+                                 triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w,
+                                 triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w,
+                                 triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w,
                                  triangle.color);
         }
 
