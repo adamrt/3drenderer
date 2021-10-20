@@ -14,8 +14,8 @@ extern SDL_Renderer *renderer;
 extern uint32_t *color_buffer;
 extern float *z_buffer;
 extern SDL_Texture *color_buffer_texture;
-extern int SCREEN_WIDTH;
-extern int SCREEN_HEIGHT;
+extern int window_width;
+extern int window_height;
 
 void int_swap(int *a, int *b);
 

@@ -67,26 +67,26 @@ bool setup(void) {
     options.enable_fill_triangles = false;
     options.enable_textured_triangles = true;
 
-    color_buffer = malloc(sizeof(uint32_t) * SCREEN_WIDTH * SCREEN_HEIGHT);
+    color_buffer = malloc(sizeof(uint32_t) * window_width * window_height);
     if (!color_buffer) {
         fprintf(stderr, "Error allocating for color_buffer\n");
         return false;
     }
 
-    z_buffer = malloc(sizeof(float) * SCREEN_WIDTH * SCREEN_HEIGHT);
+    z_buffer = malloc(sizeof(float) * window_width * window_height);
     if (!z_buffer) {
         fprintf(stderr, "Error allocating for z_buffer\n");
         return false;
     }
 
-    color_buffer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
+    color_buffer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, window_width, window_height);
     if (!color_buffer_texture) {
         fprintf(stderr, "Error creating texture\n");
         return false;
     }
 
     float fov = M_PI / 3.0; // 180/3 or 60deg
-    float aspect = (float)SCREEN_HEIGHT / (float)SCREEN_WIDTH;
+    float aspect = (float)window_height / (float)window_width;
     float znear = 0.1;
     float zfar = 100.0;
     proj_matrix = mat4_make_perspective(fov, aspect, znear, zfar);
@@ -220,8 +220,8 @@ void update(void) {
             projected_points[j] = mat4_mul_vec4_project(proj_matrix, transformed_vertices[j]);
 
             // Scale into the view
-            projected_points[j].x *= (SCREEN_WIDTH / 2.0);
-            projected_points[j].y *= (SCREEN_HEIGHT/ 2.0);
+            projected_points[j].x *= (window_width / 2.0);
+            projected_points[j].y *= (window_height/ 2.0);
 
             // Invert the y value to account for flipped y coordinate.  TODO: Does this
             // only matter for OBJ files? Should it be handled in OBJ load function so
@@ -229,8 +229,8 @@ void update(void) {
             projected_points[j].y *= -1;
 
             // Translate the projected point to the middle of the screen
-            projected_points[j].x += (SCREEN_WIDTH / 2.0);
-            projected_points[j].y += (SCREEN_HEIGHT / 2.0);
+            projected_points[j].x += (window_width / 2.0);
+            projected_points[j].y += (window_height / 2.0);
         }
 
         float light_intensity_factor = -vec3_dot(normal, light.direction);

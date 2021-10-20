@@ -6,8 +6,8 @@ SDL_Renderer *renderer = NULL;
 uint32_t *color_buffer = NULL;
 float *z_buffer = NULL;
 SDL_Texture *color_buffer_texture = NULL;
-int SCREEN_WIDTH = 800;
-int SCREEN_HEIGHT = 600;
+int window_width = 0;
+int window_height = 0;
 
 bool initialize_window(void) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -33,16 +33,14 @@ bool initialize_window(void) {
         return false;
     }
 
-    // Wayland is an issue I think.
-    // SDL_SetWindowFullscreen(0, SDL_WINDOW_FULLSCREEN);
-
+    SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
     return true;
 }
 
 // draw_grid modifies the color_buffer to have a dot every 10x10 block.
 void draw_grid(uint32_t color) {
-    for (int y = 0; y < SCREEN_HEIGHT; y += 10){
-        for (int x = 0; x < SCREEN_WIDTH; x += 10){
+    for (int y = 0; y < window_height; y += 10){
+        for (int x = 0; x < window_width; x += 10){
             draw_pixel(x, y, color);
         }
     }
@@ -77,8 +75,8 @@ void draw_points(int x0, int y0, int x1, int y1, int x2, int y2, int width, int 
 
 
 void draw_pixel(int x, int y, uint32_t color) {
-    if (x >= 0 && x < SCREEN_WIDTH && y >= 0 && y < SCREEN_HEIGHT) {
-        color_buffer[(SCREEN_WIDTH * y) + x] = color;
+    if (x >= 0 && x < window_width && y >= 0 && y < window_height) {
+        color_buffer[(window_width * y) + x] = color;
     }
 }
 
@@ -93,22 +91,22 @@ void draw_rect(int x, int y, int width, int height, uint32_t color) {
 }
 
 void render_color_buffer(void) {
-    SDL_UpdateTexture(color_buffer_texture, NULL, color_buffer, (int)(SCREEN_WIDTH * sizeof(uint32_t)));
+    SDL_UpdateTexture(color_buffer_texture, NULL, color_buffer, (int)(window_width * sizeof(uint32_t)));
     SDL_RenderCopy(renderer, color_buffer_texture, NULL, NULL);
 }
 
 void clear_color_buffer(uint32_t color) {
-    for (int y = 0; y < SCREEN_HEIGHT; y++){
-        for (int x = 0; x < SCREEN_WIDTH; x++){
-            color_buffer[(SCREEN_WIDTH * y) + x] = color;
+    for (int y = 0; y < window_height; y++){
+        for (int x = 0; x < window_width; x++){
+            color_buffer[(window_width * y) + x] = color;
         }
     }
 }
 
 void clear_z_buffer() {
-    for (int y = 0; y < SCREEN_HEIGHT; y++){
-        for (int x = 0; x < SCREEN_WIDTH; x++){
-            z_buffer[(SCREEN_WIDTH * y) + x] = 1.0;
+    for (int y = 0; y < window_height; y++){
+        for (int x = 0; x < window_width; x++){
+            z_buffer[(window_width * y) + x] = 1.0;
         }
     }
 }
