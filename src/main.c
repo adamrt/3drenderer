@@ -83,8 +83,8 @@ bool setup(void) {
     /* texture_height = 64; */
 
     // load_cube_mesh_data();
-    load_obj_file_data("res/f117.obj");
-    load_png_texture_data("./res/f117.png");
+    load_obj_file_data("res/f22.obj");
+    load_png_texture_data("./res/f22.png");
 
     return true;
 }
@@ -135,7 +135,7 @@ void update(void) {
     mesh.scale.x += 0.000;
     mesh.scale.y += 0.000;
     mesh.translation.x += 0.00;
-    mesh.translation.z = 5.0;
+    mesh.translation.z = 4.0;
 
     mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
     mat4_t rotation_matrix_x = mat4_make_rotation_x(mesh.rotation.x);
@@ -276,7 +276,7 @@ void render(void) {
                           triangle.points[0].x, triangle.points[0].y,
                           triangle.points[1].x, triangle.points[1].y,
                           triangle.points[2].x, triangle.points[2].y,
-                          0xFFFFFF00);
+                          0xFFFFFFFF);
         }
 
     }
