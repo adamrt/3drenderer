@@ -92,8 +92,8 @@ bool setup(void) {
     proj_matrix = mat4_make_perspective(fov, aspect, znear, zfar);
 
     // load_cube_mesh_data();
-    load_obj_file_data("res/f22.obj");
-    load_png_texture_data("./res/f22.png");
+    load_obj_file_data("res/efa.obj");
+    load_png_texture_data("./res/efa.png");
 
     return true;
 }
@@ -147,7 +147,7 @@ void update(void) {
     mesh.scale.x += 0.000;
     mesh.scale.y += 0.000;
     mesh.translation.x += 0.00;
-    mesh.translation.z = 4.0;
+    mesh.translation.z = 5.0;
 
     Mat4 scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
     Mat4 rotation_matrix_x = mat4_make_rotation_x(mesh.rotation.x);

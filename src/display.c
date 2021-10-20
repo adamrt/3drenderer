@@ -15,13 +15,18 @@ bool initialize_window(void) {
         return false;
     }
 
-    /* SDL_DisplayMode display_mode; */
-    /* SDL_GetCurrentDisplayMode(0, &display_mode); */
+    SDL_DisplayMode display_mode;
+    SDL_GetCurrentDisplayMode(0, &display_mode);
 
-    /* SCREEN_WIDTH = display_mode.w; */
-    /* SCREEN_HEIGHT = display_mode.h; */
+    int fullscreen_width = display_mode.w;
+    int fullscreen_height = display_mode.h;
 
-    window = SDL_CreateWindow(NULL, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+    // This is a hack to force SDL to upscale pixels to our fullscreen resolution.
+    // Gives a pixelated look and requires less performance.
+    window_width = fullscreen_width / 2.0;
+    window_height = fullscreen_height / 2.0;
+
+    window = SDL_CreateWindow(NULL, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, fullscreen_width, fullscreen_height, 0);
     if (!window) {
         fprintf(stderr, "Error creating SDL window\n");
         return false;
