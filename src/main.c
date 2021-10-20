@@ -82,9 +82,9 @@ bool setup(void) {
     /* texture_width = 64; */
     /* texture_height = 64; */
 
-    load_cube_mesh_data();
+    // load_cube_mesh_data();
+    load_obj_file_data("res/cube.obj");
     load_png_texture_data("./res/cube.png");
-    // load_obj_file_data("res/f22.obj");
 
     return true;
 }
@@ -129,12 +129,12 @@ void update(void) {
 
     triangles_to_render = NULL;
 
-    // mesh.rotation.x += 0.02;
+    mesh.rotation.x += 0.00;
     mesh.rotation.y += 0.02;
-    // mesh.rotation.z += 0.02;
-    // mesh.scale.x += 0.002;
-    // mesh.scale.y += 0.001;
-    // mesh.translation.x += 0.01;
+    mesh.rotation.z += 0.00;
+    mesh.scale.x += 0.000;
+    mesh.scale.y += 0.000;
+    mesh.translation.x += 0.00;
     mesh.translation.z = 5.0;
 
     mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
@@ -151,9 +151,9 @@ void update(void) {
         vec3_t face_vertices[3];
 
         // Offset for 0 vs 1-index
-        face_vertices[0] = mesh.vertices[mesh_face.a - 1];
-        face_vertices[1] = mesh.vertices[mesh_face.b - 1];
-        face_vertices[2] = mesh.vertices[mesh_face.c - 1];
+        face_vertices[0] = mesh.vertices[mesh_face.a];
+        face_vertices[1] = mesh.vertices[mesh_face.b];
+        face_vertices[2] = mesh.vertices[mesh_face.c];
 
         vec4_t transformed_vertices[3];
 
