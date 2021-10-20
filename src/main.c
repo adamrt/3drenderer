@@ -119,6 +119,9 @@ void process_input(void) {
         }
         if (event.key.keysym.sym == SDLK_3) {
             options.enable_fill_triangles = !options.enable_fill_triangles;
+            if (options.enable_fill_triangles) {
+                options.enable_textured_triangles = false;
+            }
         }
         if (event.key.keysym.sym == SDLK_4) {
             options.enable_textured_triangles = !options.enable_textured_triangles;
@@ -140,7 +143,7 @@ void update(void) {
     num_triangles_to_render = 0;
 
     mesh.rotation.x += 0.02;
-    mesh.rotation.y += 0.00;
+    mesh.rotation.y += 0.0;
     mesh.rotation.z += 0.0;
     mesh.scale.x += 0.000;
     mesh.scale.y += 0.000;
