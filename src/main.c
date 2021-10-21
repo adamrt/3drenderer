@@ -131,6 +131,26 @@ void process_input(void) {
                 options.enable_fill_triangles = false;
             }
         }
+        if (event.key.keysym.sym == SDLK_a) {
+            camera.yaw -= 1.0 * delta_time;
+        }
+        if (event.key.keysym.sym == SDLK_d) {
+            camera.yaw += 1.0 * delta_time;
+        }
+        if (event.key.keysym.sym == SDLK_w) {
+            camera.forward_velocity = vec3_mul(camera.direction, 5.0 * delta_time);
+            camera.position = vec3_add(camera.position, camera.forward_velocity);
+        }
+        if (event.key.keysym.sym == SDLK_s) {
+            camera.forward_velocity = vec3_mul(camera.direction, 5.0 * delta_time);
+            camera.position = vec3_sub(camera.position, camera.forward_velocity);
+        }
+        if (event.key.keysym.sym == SDLK_UP) {
+            camera.position.y += 3.0 * delta_time;
+        }
+        if (event.key.keysym.sym == SDLK_DOWN) {
+            camera.position.y -= 3.0 * delta_time;
+        }
         break;
     }
 }
@@ -154,14 +174,17 @@ void update(void) {
     mesh.rotation.z += 0.0 * delta_time;
     mesh.translation.z = 5.0;
 
-    // Change the camera position per frame
-    camera.position.x += 0.03;
-    camera.position.y += 0.03;
+    // Initialize the target looking at the positive z-axis;
+    Vec3 target = { 0, 0, 1 };
+    Mat4 camera_yaw_rotation = mat4_make_rotation_y(camera.yaw);
+    camera.direction = vec3_from_vec4(mat4_mul_vec4(camera_yaw_rotation, vec4_from_vec3(target)));
 
-    // Create the view matrix looking at a hardcoded point
-    Vec3 target = { 0, 0, 4.0 };
-    Vec3 up = { 0, 1, 0 };
-    view_matrix = mat4_look_at(camera.position, target, up);
+    // Offfset the camera position in the direction where the camer is pointing
+    target = vec3_add(camera.position, camera.direction);
+    Vec3 up_direction = { 0, 1, 0 };
+
+    // Create the view matrix
+    view_matrix = mat4_look_at(camera.position, target, up_direction);
 
     Mat4 scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
     Mat4 rotation_matrix_x = mat4_make_rotation_x(mesh.rotation.x);
