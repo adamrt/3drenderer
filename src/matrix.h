@@ -15,6 +15,7 @@ Mat4 mat4_make_rotation_x(float angle);
 Mat4 mat4_make_rotation_y(float angle);
 Mat4 mat4_make_rotation_z(float angle);
 Mat4 mat4_make_perspective(float fov, float aspect, float znear, float zfar);
+Mat4 mat4_look_at(Vec3 eye, Vec3 target, Vec3 up);
 
 Vec4 mat4_mul_vec4(Mat4 m, Vec4 v);
 Mat4 mat4_mul_mat4(Mat4 a, Mat4 b);
