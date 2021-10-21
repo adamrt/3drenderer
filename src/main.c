@@ -32,6 +32,7 @@ float fov_factor = 640;
 
 bool is_running = false;
 int previous_frame_time = 0;
+float delta_time = 0;
 
 Options options;
 
@@ -135,20 +136,22 @@ void process_input(void) {
 }
 
 void update(void) {
+    // Get a delta time factor converted to seconds to be used to update our game objects
     int ms_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - previous_frame_time);
     if (ms_to_wait > 0) {
         SDL_Delay(ms_to_wait);
     }
+
+    delta_time = (SDL_GetTicks() - previous_frame_time) / 1000.0;
+
     previous_frame_time = SDL_GetTicks();
 
     num_triangles_to_render = 0;
 
     // Change mesh scale, rotation and translation values per frame
-    // mesh.rotation.x += 0.02;
-    // mesh.rotation.y += 0.0;
-    // mesh.rotation.z += 0.0;
-    // mesh.scale.x += 0.000;
-    //mesh.scale.y += 0.000;
+    mesh.rotation.x += 0.0 * delta_time;
+    mesh.rotation.y += 0.0 * delta_time;
+    mesh.rotation.z += 0.0 * delta_time;
     mesh.translation.z = 5.0;
 
     // Change the camera position per frame
