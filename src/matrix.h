@@ -5,20 +5,17 @@
 
 typedef struct {
     float m[4][4];
-} Mat4;
+} mat4_t;
 
-Mat4 mat4_identity(void);
-
-Mat4 mat4_make_scale(float x, float y, float z);
-Mat4 mat4_make_translation(float x, float y, float z);
-Mat4 mat4_make_rotation_x(float angle);
-Mat4 mat4_make_rotation_y(float angle);
-Mat4 mat4_make_rotation_z(float angle);
-Mat4 mat4_make_perspective(float fov, float aspect, float znear, float zfar);
-Mat4 mat4_look_at(Vec3 eye, Vec3 target, Vec3 up);
-
-Vec4 mat4_mul_vec4(Mat4 m, Vec4 v);
-Mat4 mat4_mul_mat4(Mat4 a, Mat4 b);
-Vec4 mat4_mul_vec4_project(Mat4 mat_proj, Vec4 v);
+mat4_t mat4_identity(void);
+mat4_t mat4_make_scale(float sx, float sy, float sz);
+mat4_t mat4_make_translation(float tx, float ty, float tz);
+mat4_t mat4_make_rotation_x(float angle);
+mat4_t mat4_make_rotation_y(float angle);
+mat4_t mat4_make_rotation_z(float angle);
+mat4_t mat4_make_perspective(float fov, float aspect, float znear, float zfar);
+vec4_t mat4_mul_vec4(mat4_t m, vec4_t v);
+mat4_t mat4_mul_mat4(mat4_t a, mat4_t b);
+mat4_t mat4_look_at(vec3_t eye, vec3_t target, vec3_t up);
 
 #endif

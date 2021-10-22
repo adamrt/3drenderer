@@ -4,18 +4,24 @@
 #include "vector.h"
 #include "triangle.h"
 
+#define N_CUBE_VERTICES 8
+#define N_CUBE_FACES (6 * 2) // 6 cube faces, 2 triangles per face
+
+extern vec3_t cube_vertices[N_CUBE_VERTICES];
+extern face_t cube_faces[N_CUBE_FACES];
+
+// Define a struct for dynamic size meshes, with array of vertices and faces
 typedef struct {
-    Vec3 *vertices;   // dynamic array
-    Face *faces;      // dynamic array
+    vec3_t* vertices;   // dynamic array of vertices
+    face_t* faces;      // dynamic array of faces
+    vec3_t rotation;    // rotation with x, y, and z values
+    vec3_t scale;       // scale with x, y, and z values
+    vec3_t translation; // translation with x, y, and z values
+} mesh_t;
 
-    Vec3 rotation;    // rotation with x, y, z values
-    Vec3 scale;       // scale with x, y, z values
-    Vec3 translation; // trans with x, y, z values
-} Mesh;
-
-extern Mesh mesh;
+extern mesh_t mesh;
 
 void load_cube_mesh_data(void);
-void load_obj_file_data(char *filename);
+void load_obj_file_data(char* filename);
 
 #endif
