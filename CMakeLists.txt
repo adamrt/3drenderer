@@ -16,7 +16,6 @@ add_compile_options(-pedantic )
 
 add_executable(renderer
   src/main.c
-  src/array.c
   src/camera.c
   src/clipping.c
   src/display.c

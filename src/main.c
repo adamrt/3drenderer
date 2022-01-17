@@ -1,4 +1,3 @@
-#include "array.h"
 #include "camera.h"
 #include "clipping.h"
 #include "display.h"
@@ -173,8 +172,7 @@ void update(void)
     view_matrix = mat4_look_at(get_camera_position(), target, up_direction);
 
     // Loop all triangle faces of our mesh
-    int num_faces = array_length(mesh.faces);
-    for (int i = 0; i < num_faces; i++) {
+    for (uint32_t i = 0; i < mesh.num_faces; i++) {
         face_t mesh_face = mesh.faces[i];
 
         vec3_t face_vertices[3];
@@ -371,8 +369,6 @@ void render(void)
 void free_resources(void)
 {
     upng_free(png_texture);
-    array_free(mesh.faces);
-    array_free(mesh.vertices);
     destroy_window();
 }
 
