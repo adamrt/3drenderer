@@ -1,18 +1,18 @@
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <SDL2/SDL.h>
-#include "upng.h"
 #include "array.h"
-#include "display.h"
-#include "clipping.h"
-#include "vector.h"
-#include "matrix.h"
-#include "light.h"
 #include "camera.h"
-#include "triangle.h"
-#include "texture.h"
+#include "clipping.h"
+#include "display.h"
+#include "light.h"
+#include "matrix.h"
 #include "mesh.h"
+#include "texture.h"
+#include "triangle.h"
+#include "upng.h"
+#include "vector.h"
+#include <SDL2/SDL.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
 
 // Global variables for execution status and game loop
 bool is_running = false;
@@ -30,7 +30,8 @@ mat4_t proj_matrix;
 mat4_t view_matrix;
 
 // Setup function to initialize variables and game objects
-void setup(void) {
+void setup(void)
+{
     // Initialize render mode and triangle culling method
     set_render_method(RENDER_WIRE);
     set_cull_method(CULL_BACKFACE);
@@ -58,7 +59,8 @@ void setup(void) {
 }
 
 // Poll system events and handle keyboard input
-void process_input(void) {
+void process_input(void)
+{
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
@@ -134,7 +136,8 @@ void process_input(void) {
 }
 
 // Update function frame by frame with a fixed time step
-void update(void) {
+void update(void)
+{
     // Wait some time until the reach the target frame time in milliseconds
     int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - previous_frame_time);
 
@@ -237,13 +240,12 @@ void update(void) {
 
         // Create a polygon from the original transformed triangle to be clipped
         polygon_t polygon = polygon_from_triangle(
-                                                  vec3_from_vec4(transformed_vertices[0]),
-                                                  vec3_from_vec4(transformed_vertices[1]),
-                                                  vec3_from_vec4(transformed_vertices[2]),
-                                                  mesh_face.a_uv,
-                                                  mesh_face.b_uv,
-                                                  mesh_face.c_uv
-                                                  );
+            vec3_from_vec4(transformed_vertices[0]),
+            vec3_from_vec4(transformed_vertices[1]),
+            vec3_from_vec4(transformed_vertices[2]),
+            mesh_face.a_uv,
+            mesh_face.b_uv,
+            mesh_face.c_uv);
 
         // Clip the polygon and returns a new polygon with potential new vertices
         clip_polygon(&polygon);
@@ -295,12 +297,12 @@ void update(void) {
                 .points = {
                     { projected_points[0].x, projected_points[0].y, projected_points[0].z, projected_points[0].w },
                     { projected_points[1].x, projected_points[1].y, projected_points[1].z, projected_points[1].w },
-                    { projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w }
+                    { projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w },
                 },
                 .texcoords = {
                     { triangle_after_clipping.texcoords[0].u, triangle_after_clipping.texcoords[0].v },
                     { triangle_after_clipping.texcoords[1].u, triangle_after_clipping.texcoords[1].v },
-                    { triangle_after_clipping.texcoords[2].u, triangle_after_clipping.texcoords[2].v }
+                    { triangle_after_clipping.texcoords[2].u, triangle_after_clipping.texcoords[2].v },
                 },
                 .color = triangle_color
             };
@@ -314,7 +316,8 @@ void update(void) {
 }
 
 // Render function to draw objects on the display
-void render(void) {
+void render(void)
+{
     // Clear all the arrays to get ready for the next frame
     clear_color_buffer(0xFF000000);
     clear_z_buffer();
@@ -326,33 +329,30 @@ void render(void) {
         triangle_t triangle = triangles_to_render[i];
 
         // Draw filled triangle
-        if (should_render_filled_triangle()){
+        if (should_render_filled_triangle()) {
             draw_filled_triangle(
-                                 triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, // vertex A
-                                 triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, // vertex B
-                                 triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, // vertex C
-                                 triangle.color
-                                 );
+                triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, // vertex A
+                triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, // vertex B
+                triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, // vertex C
+                triangle.color);
         }
 
         // Draw textured triangle
         if (should_render_textured_triangle()) {
             draw_textured_triangle(
-                                   triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, triangle.texcoords[0].u, triangle.texcoords[0].v, // vertex A
-                                   triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, triangle.texcoords[1].u, triangle.texcoords[1].v, // vertex B
-                                   triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, triangle.texcoords[2].u, triangle.texcoords[2].v, // vertex C
-                                   mesh_texture
-                                   );
+                triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, triangle.texcoords[0].u, triangle.texcoords[0].v, // vertex A
+                triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, triangle.texcoords[1].u, triangle.texcoords[1].v, // vertex B
+                triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, triangle.texcoords[2].u, triangle.texcoords[2].v, // vertex C
+                mesh_texture);
         }
 
         // Draw triangle wireframe
         if (should_render_wire()) {
             draw_triangle(
-                          triangle.points[0].x, triangle.points[0].y, // vertex A
-                          triangle.points[1].x, triangle.points[1].y, // vertex B
-                          triangle.points[2].x, triangle.points[2].y, // vertex C
-                          0xFFFFFFFF
-                          );
+                triangle.points[0].x, triangle.points[0].y, // vertex A
+                triangle.points[1].x, triangle.points[1].y, // vertex B
+                triangle.points[2].x, triangle.points[2].y, // vertex C
+                0xFFFFFFFF);
         }
 
         // Draw triangle vertex points
@@ -368,14 +368,16 @@ void render(void) {
 }
 
 // Free the memory that was dynamically allocated by the program
-void free_resources(void) {
+void free_resources(void)
+{
     upng_free(png_texture);
     array_free(mesh.faces);
     array_free(mesh.vertices);
     destroy_window();
 }
 
-int main(void) {
+int main(void)
+{
     is_running = init_window();
 
     setup();

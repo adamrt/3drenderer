@@ -1,8 +1,8 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include <stdint.h>
 #include "upng.h"
+#include <stdint.h>
 
 typedef struct {
     float u;

@@ -1,8 +1,8 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
-#include <stdint.h>
 #include "vector.h"
+#include <stdint.h>
 
 typedef struct {
     vec3_t direction;

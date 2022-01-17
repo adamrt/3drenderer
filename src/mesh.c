@@ -1,7 +1,7 @@
+#include "mesh.h"
+#include "array.h"
 #include <stdio.h>
 #include <string.h>
-#include "array.h"
-#include "mesh.h"
 
 mesh_t mesh = {
     .vertices = NULL,
@@ -13,13 +13,13 @@ mesh_t mesh = {
 
 vec3_t cube_vertices[N_CUBE_VERTICES] = {
     { .x = -1, .y = -1, .z = -1 }, // 1
-    { .x = -1, .y =  1, .z = -1 }, // 2
-    { .x =  1, .y =  1, .z = -1 }, // 3
-    { .x =  1, .y = -1, .z = -1 }, // 4
-    { .x =  1, .y =  1, .z =  1 }, // 5
-    { .x =  1, .y = -1, .z =  1 }, // 6
-    { .x = -1, .y =  1, .z =  1 }, // 7
-    { .x = -1, .y = -1, .z =  1 }  // 8
+    { .x = -1, .y = 1, .z = -1 },  // 2
+    { .x = 1, .y = 1, .z = -1 },   // 3
+    { .x = 1, .y = -1, .z = -1 },  // 4
+    { .x = 1, .y = 1, .z = 1 },    // 5
+    { .x = 1, .y = -1, .z = 1 },   // 6
+    { .x = -1, .y = 1, .z = 1 },   // 7
+    { .x = -1, .y = -1, .z = 1 }   // 8
 };
 
 face_t cube_faces[N_CUBE_FACES] = {
@@ -43,7 +43,8 @@ face_t cube_faces[N_CUBE_FACES] = {
     { .a = 6, .b = 1, .c = 4, .a_uv = { 0, 1 }, .b_uv = { 1, 0 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF }
 };
 
-void load_cube_mesh_data(void) {
+void load_cube_mesh_data(void)
+{
     for (int i = 0; i < N_CUBE_VERTICES; i++) {
         vec3_t cube_vertex = cube_vertices[i];
         array_push(mesh.vertices, cube_vertex);
@@ -54,7 +55,8 @@ void load_cube_mesh_data(void) {
     }
 }
 
-void load_obj_file_data(char* filename) {
+void load_obj_file_data(char* filename)
+{
     FILE* file;
     file = fopen(filename, "r");
     char line[1024];
@@ -83,8 +85,7 @@ void load_obj_file_data(char* filename) {
                 line, "f %d/%d/%d %d/%d/%d %d/%d/%d",
                 &vertex_indices[0], &texture_indices[0], &normal_indices[0],
                 &vertex_indices[1], &texture_indices[1], &normal_indices[1],
-                &vertex_indices[2], &texture_indices[2], &normal_indices[2]
-            );
+                &vertex_indices[2], &texture_indices[2], &normal_indices[2]);
             face_t face = {
                 .a = vertex_indices[0],
                 .b = vertex_indices[1],

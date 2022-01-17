@@ -1,8 +1,8 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "vector.h"
 #include "matrix.h"
+#include "vector.h"
 
 typedef struct {
     vec3_t position;
