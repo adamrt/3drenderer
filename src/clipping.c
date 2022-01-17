@@ -4,24 +4,24 @@
 #define NUM_PLANES 6
 plane_t frustum_planes[NUM_PLANES];
 
-// Frustum planes are defined by a point and a normal vector
-// Near plane   :  P=(0, 0, znear), N=(0, 0,  1)
-// Far plane    :  P=(0, 0, zfar),  N=(0, 0, -1)
-// Top plane    :  P=(0, 0, 0),     N=(0, -cos(fovy/2), sin(fovy/2))
-// Bottom plane :  P=(0, 0, 0),     N=(0, cos(fovy/2), sin(fovy/2))
-// Left plane   :  P=(0, 0, 0),     N=(cos(fovx/2), 0, sin(fovx/2))
-// Right plane  :  P=(0, 0, 0),     N=(-cos(fovx/2), 0, sin(fovx/2))
-//
-//           /|\
-//         /  | |
-//       /\   | |
-//     /      | |
-//  P*|-->  <-|*|   ----> +z-axis
-//     \      | |
-//       \/   | |
-//         \  | |
-//           \|/
-//
+/* Frustum planes are defined by a point and a normal vector
+   Near plane   :  P=(0, 0, znear), N=(0, 0,  1)
+   Far plane    :  P=(0, 0, zfar),  N=(0, 0, -1)
+   Top plane    :  P=(0, 0, 0),     N=(0, -cos(fovy/2), sin(fovy/2))
+   Bottom plane :  P=(0, 0, 0),     N=(0, cos(fovy/2), sin(fovy/2))
+   Left plane   :  P=(0, 0, 0),     N=(cos(fovx/2), 0, sin(fovx/2))
+   Right plane  :  P=(0, 0, 0),     N=(-cos(fovx/2), 0, sin(fovx/2))
+
+             /|\
+           /  | |
+         /\   | |
+       /      | |
+    P*|-->  <-|*|   ----> +z-axis
+       \      | |
+         \/   | |
+           \  | |
+             \|/
+*/
 void init_frustum_planes(float fov_x, float fov_y, float znear, float zfar) {
     float cos_half_fov_x = cos(fov_x / 2);
     float sin_half_fov_x = sin(fov_x / 2);
