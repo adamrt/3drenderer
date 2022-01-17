@@ -7,8 +7,8 @@ static uint32_t* colorbuffer = NULL;
 static float* zbuffer = NULL;
 
 static SDL_Texture* colorbuffer_texture = NULL;
-static int window_width = 640;
-static int window_height = 480;
+static int window_width = 1024;
+static int window_height = 768;
 
 static int render_method = 0;
 static int cull_method = 0;
@@ -40,7 +40,7 @@ bool init_window(void)
     window_height = fullscreen_height / 2.0;
 
     // Create a SDL Window
-    window = SDL_CreateWindow(NULL, 0, 0, fullscreen_width, fullscreen_height, SDL_WINDOW_BORDERLESS);
+    window = SDL_CreateWindow(NULL, 0, 0, window_width, window_height, SDL_WINDOW_SHOWN);
     if (!window) {
         fprintf(stderr, "Error creating SDL window.\n");
         return false;
