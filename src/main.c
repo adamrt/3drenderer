@@ -28,6 +28,13 @@ mat4_t world_matrix;
 mat4_t proj_matrix;
 mat4_t view_matrix;
 
+uint32_t* mesh_texture;
+mesh_t mesh = {
+    .rotation = { 0, 0, 0 },
+    .scale = { 1.0, 1.0, 1.0 },
+    .translation = { 0, 0, 0 }
+};
+
 // Setup function to initialize variables and game objects
 void setup(void)
 {
@@ -51,10 +58,10 @@ void setup(void)
     init_frustum_planes(fov_x, fov_y, znear, zfar);
 
     // Loads the vertex and face values for the mesh data structure
-    load_obj_file_data("./res/efa.obj");
+    load_obj_file_data(&mesh, "./res/efa.obj");
 
     // Load the texture information from an external PNG file
-    load_png_texture_data("./res/efa.png");
+    mesh_texture = load_png_texture_data("./res/efa.png");
 }
 
 // Poll system events and handle keyboard input
@@ -365,13 +372,6 @@ void render(void)
     render_color_buffer();
 }
 
-// Free the memory that was dynamically allocated by the program
-void free_resources(void)
-{
-    upng_free(png_texture);
-    destroy_window();
-}
-
 int main(void)
 {
     is_running = init_window();
@@ -384,7 +384,7 @@ int main(void)
         render();
     }
 
-    free_resources();
+    destroy_window();
 
     return 0;
 }

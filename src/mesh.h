@@ -26,8 +26,7 @@ typedef struct {
     vec3_t translation; // translation with x, y, and z values
 } mesh_t;
 
-extern mesh_t mesh;
 
-void load_obj_file_data(char* filename);
+void load_obj_file_data(mesh_t* mesh, char* filename);
 
 #endif

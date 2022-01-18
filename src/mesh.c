@@ -2,13 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-mesh_t mesh = {
-    .rotation = { 0, 0, 0 },
-    .scale = { 1.0, 1.0, 1.0 },
-    .translation = { 0, 0, 0 }
-};
-
-void load_obj_file_data(char* filename)
+void load_obj_file_data(mesh_t* mesh, char* filename)
 {
     FILE* file;
     file = fopen(filename, "r");
@@ -22,7 +16,7 @@ void load_obj_file_data(char* filename)
         if (strncmp(line, "v ", 2) == 0) {
             vec3_t vertex;
             sscanf(line, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);
-            mesh.vertices[mesh.num_vertices++] = vertex;
+            mesh->vertices[mesh->num_vertices++] = vertex;
         }
         // Texture coordinate information
         if (strncmp(line, "vt ", 3) == 0) {
@@ -49,7 +43,7 @@ void load_obj_file_data(char* filename)
                 .c_uv = texcoords[texture_indices[2] - 1],
                 .color = 0xFFFFFFFF
             };
-            mesh.faces[mesh.num_faces++] = face;
+            mesh->faces[mesh->num_faces++] = face;
         }
     }
     fclose(file);
