@@ -39,7 +39,7 @@ mesh_t mesh = {
 void setup(void)
 {
     // Initialize render mode and triangle culling method
-    set_render_method(RENDER_WIRE);
+    set_render_method(RENDER_TEXTURED);
     set_cull_method(CULL_BACKFACE);
 
     // Initialize the scene light direction
@@ -161,8 +161,8 @@ void update(void)
     num_triangles_to_render = 0;
 
     // Change the mesh scale, rotation, and translation values per animation frame
-    mesh.rotation.x += 0.0 * delta_time;
-    mesh.rotation.y += 0.0 * delta_time;
+    mesh.rotation.x -= 0.2 * delta_time;
+    mesh.rotation.y -= 0.2 * delta_time;
     mesh.rotation.z += 0.0 * delta_time;
     mesh.translation.z = 5.0;
 
