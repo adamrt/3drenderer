@@ -111,29 +111,25 @@ void process_input(void)
                 break;
             }
             if (event.key.keysym.sym == SDLK_w) {
-                rotate_camera_pitch(+3.0 * delta_time);
+                update_camera_velocity(vec3_mul(get_camera_direction(), 10.0 * delta_time));
+                update_camera_position(vec3_add(get_camera_position(), get_camera_velocity()));
                 break;
             }
             if (event.key.keysym.sym == SDLK_s) {
-                rotate_camera_pitch(-3.0 * delta_time);
+                update_camera_velocity(vec3_mul(get_camera_direction(), 10.0 * delta_time));
+                update_camera_position(vec3_sub(get_camera_position(), get_camera_velocity()));
                 break;
             }
-            if (event.key.keysym.sym == SDLK_RIGHT) {
-                rotate_camera_yaw(+1.0 * delta_time);
+            if (event.key.keysym.sym == SDLK_a) {
+                update_camera_velocity(vec3_mul(vec3_new(-1.0, 0, 0), 10.0 * delta_time));
+                update_camera_position(vec3_add(get_camera_position(), get_camera_velocity()));
+
                 break;
             }
-            if (event.key.keysym.sym == SDLK_LEFT) {
-                rotate_camera_yaw(-1.0 * delta_time);
-                break;
-            }
-            if (event.key.keysym.sym == SDLK_UP) {
-                update_camera_forward_velocity(vec3_mul(get_camera_direction(), 5.0 * delta_time));
-                update_camera_position(vec3_add(get_camera_position(), get_camera_forward_velocity()));
-                break;
-            }
-            if (event.key.keysym.sym == SDLK_DOWN) {
-                update_camera_forward_velocity(vec3_mul(get_camera_direction(), 5.0 * delta_time));
-                update_camera_position(vec3_sub(get_camera_position(), get_camera_forward_velocity()));
+            if (event.key.keysym.sym == SDLK_d) {
+                update_camera_velocity(vec3_mul(vec3_new(1.0, 0, 0), 10.0 * delta_time));
+                update_camera_position(vec3_add(get_camera_position(), get_camera_velocity()));
+
                 break;
             }
             break;

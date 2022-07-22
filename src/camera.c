@@ -6,7 +6,7 @@ void init_camera(vec3_t position, vec3_t direction)
 {
     camera.position = position;
     camera.direction = direction;
-    camera.forward_velocity = vec3_new(0, 0, 0);
+    camera.velocity = vec3_new(0, 0, 0);
     camera.yaw = 0.0;
     camera.pitch = 0.0;
 }
@@ -21,9 +21,9 @@ vec3_t get_camera_direction(void)
     return camera.direction;
 }
 
-vec3_t get_camera_forward_velocity(void)
+vec3_t get_camera_velocity(void)
 {
-    return camera.forward_velocity;
+    return camera.velocity;
 }
 
 float get_camera_yaw(void)
@@ -46,9 +46,9 @@ void update_camera_direction(vec3_t direction)
     camera.direction = direction;
 }
 
-void update_camera_forward_velocity(vec3_t forward_velocity)
+void update_camera_velocity(vec3_t velocity)
 {
-    camera.forward_velocity = forward_velocity;
+    camera.velocity = velocity;
 }
 
 void rotate_camera_yaw(float angle)
