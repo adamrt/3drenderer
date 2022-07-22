@@ -2,7 +2,7 @@
 
 static camera_t camera;
 
-void init_camera(vec3_t position, vec3_t direction)
+void camera_init(vec3_t position, vec3_t direction)
 {
     camera.position = position;
     camera.direction = direction;
@@ -11,57 +11,57 @@ void init_camera(vec3_t position, vec3_t direction)
     camera.pitch = 0.0;
 }
 
-vec3_t get_camera_position(void)
+vec3_t camera_get_position(void)
 {
     return camera.position;
 }
 
-vec3_t get_camera_direction(void)
+vec3_t camera_get_direction(void)
 {
     return camera.direction;
 }
 
-vec3_t get_camera_velocity(void)
+vec3_t camera_get_velocity(void)
 {
     return camera.velocity;
 }
 
-float get_camera_yaw(void)
+float camera_get_yaw(void)
 {
     return camera.yaw;
 }
 
-float get_camera_pitch(void)
+float camera_get_pitch(void)
 {
     return camera.pitch;
 }
 
-void update_camera_position(vec3_t position)
+void camera_set_position(vec3_t position)
 {
     camera.position = position;
 }
 
-void update_camera_direction(vec3_t direction)
+void camera_set_direction(vec3_t direction)
 {
     camera.direction = direction;
 }
 
-void update_camera_velocity(vec3_t velocity)
+void camera_set_velocity(vec3_t velocity)
 {
     camera.velocity = velocity;
 }
 
-void rotate_camera_yaw(float angle)
+void camera_rotate_yaw(float angle)
 {
     camera.yaw += angle;
 }
 
-void rotate_camera_pitch(float angle)
+void camera_rotate_pitch(float angle)
 {
     camera.pitch += angle;
 }
 
-vec3_t get_camera_lookat_target(void)
+vec3_t camera_get_lookat(void)
 {
     // Initialize the target looking at the positive z-axis
     vec3_t target = { 0, 0, 1 };

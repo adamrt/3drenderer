@@ -111,24 +111,24 @@ void process_input(void)
                 break;
             }
             if (event.key.keysym.sym == SDLK_w) {
-                update_camera_velocity(vec3_mul(get_camera_direction(), 10.0 * delta_time));
-                update_camera_position(vec3_add(get_camera_position(), get_camera_velocity()));
+                camera_set_velocity(vec3_mul(camera_get_direction(), 10.0 * delta_time));
+                camera_set_position(vec3_add(camera_get_position(), camera_get_velocity()));
                 break;
             }
             if (event.key.keysym.sym == SDLK_s) {
-                update_camera_velocity(vec3_mul(get_camera_direction(), 10.0 * delta_time));
-                update_camera_position(vec3_sub(get_camera_position(), get_camera_velocity()));
+                camera_set_velocity(vec3_mul(camera_get_direction(), 10.0 * delta_time));
+                camera_set_position(vec3_sub(camera_get_position(), camera_get_velocity()));
                 break;
             }
             if (event.key.keysym.sym == SDLK_a) {
-                update_camera_velocity(vec3_mul(vec3_new(-1.0, 0, 0), 10.0 * delta_time));
-                update_camera_position(vec3_add(get_camera_position(), get_camera_velocity()));
+                camera_set_velocity(vec3_mul(vec3_new(-1.0, 0, 0), 10.0 * delta_time));
+                camera_set_position(vec3_add(camera_get_position(), camera_get_velocity()));
 
                 break;
             }
             if (event.key.keysym.sym == SDLK_d) {
-                update_camera_velocity(vec3_mul(vec3_new(1.0, 0, 0), 10.0 * delta_time));
-                update_camera_position(vec3_add(get_camera_position(), get_camera_velocity()));
+                camera_set_velocity(vec3_mul(vec3_new(1.0, 0, 0), 10.0 * delta_time));
+                camera_set_position(vec3_add(camera_get_position(), camera_get_velocity()));
 
                 break;
             }
@@ -170,9 +170,9 @@ void update(void)
     mat4_t rotation_matrix_z = mat4_make_rotation_z(mesh.rotation.z);
 
     // Update camera look at target to create view matrix
-    vec3_t target = get_camera_lookat_target();
+    vec3_t target = camera_get_lookat();
     vec3_t up_direction = vec3_new(0, 1, 0);
-    view_matrix = mat4_look_at(get_camera_position(), target, up_direction);
+    view_matrix = mat4_look_at(camera_get_position(), target, up_direction);
 
     // Loop all triangle faces of our mesh
     for (uint32_t i = 0; i < mesh.num_faces; i++) {

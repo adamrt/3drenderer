@@ -12,21 +12,21 @@ typedef struct {
     float pitch;
 } camera_t;
 
-void init_camera(vec3_t position, vec3_t direction);
+void camera_init(vec3_t position, vec3_t direction);
 
-vec3_t get_camera_position(void);
-vec3_t get_camera_direction(void);
-vec3_t get_camera_velocity(void);
-float get_camera_yaw(void);
-float get_camera_pitch(void);
+vec3_t camera_get_lookat(void);
+vec3_t camera_get_position(void);
+vec3_t camera_get_direction(void);
+vec3_t camera_get_velocity(void);
+float  camera_get_yaw(void);
+float  camera_get_pitch(void);
 
-void update_camera_position(vec3_t position);
-void update_camera_direction(vec3_t direction);
-void update_camera_velocity(vec3_t velocity);
+void camera_set_position(vec3_t position);
+void camera_set_direction(vec3_t direction);
+void camera_set_velocity(vec3_t velocity);
 
-void rotate_camera_yaw(float angle);
-void rotate_camera_pitch(float angle);
+void camera_rotate_yaw(float angle);
+void camera_rotate_pitch(float angle);
 
-vec3_t get_camera_lookat_target(void);
 
 #endif
