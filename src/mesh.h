@@ -27,6 +27,6 @@ typedef struct {
 } mesh_t;
 
 
-void load_obj_file_data(mesh_t* mesh, char* filename);
+void load_obj_file_data(mesh_t* mesh, std::string filename);
 
 #endif

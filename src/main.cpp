@@ -30,13 +30,17 @@ mat4_t view_matrix;
 
 uint32_t* mesh_texture;
 mesh_t mesh = {
+    .vertices = {{}},
+    .num_vertices = 0,
+    .faces = {{}},
+    .num_faces = 0,
     .rotation = { 0, 0, 0 },
     .scale = { 1.0, 1.0, 1.0 },
     .translation = { 0, 0, 0 }
 };
 
 // Setup function to initialize variables and game objects
-void setup(void)
+void setup()
 {
     // Initialize render mode and triangle culling method
     set_render_method(RENDER_TEXTURED);
@@ -65,7 +69,7 @@ void setup(void)
 }
 
 // Poll system events and handle keyboard input
-void process_input(void)
+void process_input()
 {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
@@ -138,7 +142,7 @@ void process_input(void)
 }
 
 // Update function frame by frame with a fixed time step
-void update(void)
+void update()
 {
     // Wait some time until the reach the target frame time in milliseconds
     int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - previous_frame_time);
@@ -317,7 +321,7 @@ void update(void)
 }
 
 // Render function to draw objects on the display
-void render(void)
+void render()
 {
     // Clear all the arrays to get ready for the next frame
     clear_color_buffer(0xFF000000);
@@ -368,7 +372,7 @@ void render(void)
     render_color_buffer();
 }
 
-int main(void)
+int main()
 {
     is_running = init_window();
 

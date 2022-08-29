@@ -53,7 +53,7 @@ void draw_triangle_pixel(
     vec4_t point_a, vec4_t point_b, vec4_t point_c)
 {
     // Create three vec2 to find the interpolation
-    vec2_t p = { x, y };
+    vec2_t p = { (float)x, (float)y };
     vec2_t a = vec2_from_vec4(point_a);
     vec2_t b = vec2_from_vec4(point_b);
     vec2_t c = vec2_from_vec4(point_c);
@@ -87,7 +87,7 @@ void draw_triangle_texel(
     vec4_t point_a, vec4_t point_b, vec4_t point_c,
     tex2_t a_uv, tex2_t b_uv, tex2_t c_uv)
 {
-    vec2_t p = { x, y };
+    vec2_t p = { (float)x, (float)y };
     vec2_t a = vec2_from_vec4(point_a);
     vec2_t b = vec2_from_vec4(point_b);
     vec2_t c = vec2_from_vec4(point_c);
@@ -187,9 +187,9 @@ void draw_textured_triangle(
     v2 = 1.0 - v2;
 
     // Create vector points and texture coords after we sort the vertices
-    vec4_t point_a = { x0, y0, z0, w0 };
-    vec4_t point_b = { x1, y1, z1, w1 };
-    vec4_t point_c = { x2, y2, z2, w2 };
+    vec4_t point_a = { (float)x0, (float)y0, z0, w0 };
+    vec4_t point_b = { (float)x1, (float)y1, z1, w1 };
+    vec4_t point_c = { (float)x2, (float)y2, z2, w2 };
     tex2_t a_uv = { u0, v0 };
     tex2_t b_uv = { u1, v1 };
     tex2_t c_uv = { u2, v2 };
@@ -292,9 +292,9 @@ void draw_filled_triangle(
     }
 
     // Create three vector points after we sort the vertices
-    vec4_t point_a = { x0, y0, z0, w0 };
-    vec4_t point_b = { x1, y1, z1, w1 };
-    vec4_t point_c = { x2, y2, z2, w2 };
+    vec4_t point_a = { (float)x0, (float)y0, z0, w0 };
+    vec4_t point_b = { (float)x1, (float)y1, z1, w1 };
+    vec4_t point_c = { (float)x2, (float)y2, z2, w2 };
 
     // Render the upper part of the triangle (flat-bottom)
     float inv_slope_1 = 0;

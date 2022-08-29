@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 
-void load_obj_file_data(mesh_t* mesh, char* filename)
+void load_obj_file_data(mesh_t* mesh, std::string filename)
 {
     FILE* file;
-    file = fopen(filename, "r");
+    file = fopen(filename.c_str(), "r");
     char line[1024];
 
     uint32_t num_texcoords = 0;

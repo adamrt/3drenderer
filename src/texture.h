@@ -1,6 +1,7 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
+#include <string>
 #include "upng.h"
 #include <stdint.h>
 
@@ -12,7 +13,7 @@ typedef struct {
 extern int texture_width;
 extern int texture_height;
 
-uint32_t* load_png_texture_data(char* filename);
+uint32_t* load_png_texture_data(std::string filename);
 tex2_t tex2_clone(tex2_t* t);
 
 #endif

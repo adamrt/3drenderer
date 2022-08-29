@@ -1,14 +1,16 @@
 #include "texture.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
+#include "upng.h"
 
 int texture_width = 64;
 int texture_height = 64;
 
-uint32_t* load_png_texture_data(char* filename)
+uint32_t* load_png_texture_data(std::string filename)
 {
-    upng_t* png_texture = png_texture = upng_new_from_file(filename);
-    uint32_t *mesh_texture = NULL;
+    upng_t* png_texture = upng_new_from_file(filename.c_str());
+    uint32_t* mesh_texture = NULL;
 
     if (png_texture != NULL) {
         upng_decode(png_texture);
