@@ -18,6 +18,7 @@ add_executable(renderer
   src/main.cpp
   src/camera.cpp
   src/clipping.cpp
+  src/Framebuffer.cpp
   src/light.cpp
   src/matrix.cpp
   src/mesh.cpp
