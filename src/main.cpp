@@ -1,4 +1,9 @@
-#include "Renderer.h"
+#include <SDL2/SDL.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+
+#include "Window.h"
 #include "camera.h"
 #include "clipping.h"
 #include "light.h"
@@ -8,10 +13,6 @@
 #include "triangle.h"
 #include "upng.h"
 #include "vector.h"
-#include <SDL2/SDL.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdio.h>
 
 // Global variables for execution status and game loop
 bool is_running = false;
@@ -39,21 +40,21 @@ mesh_t mesh = {
     .translation = { 0, 0, 0 }
 };
 
-Renderer* renderer;
+Window* window;
 
 // Setup function to initialize variables and game objects
 void setup()
 {
     // Initialize render mode and triangle culling method
-    renderer->set_render_method(RenderMethod::Textured);
-    renderer->set_cull_method(CullMethod::Backface);
+    window->set_render_method(RenderMethod::Textured);
+    window->set_cull_method(CullMethod::Backface);
 
     // Initialize the scene light direction
     init_light(vec3_new(0, 0, 1));
 
     // Initialize the perspective projection matrix
-    float aspect_y = (float)renderer->get_window_height() / (float)renderer->get_window_width();
-    float aspect_x = (float)renderer->get_window_width() / (float)renderer->get_window_height();
+    float aspect_y = (float)window->get_window_height() / (float)window->get_window_width();
+    float aspect_x = (float)window->get_window_width() / (float)window->get_window_height();
     float fov_y = 3.141592 / 3.0; // the same as 180/3, or 60deg
     float fov_x = atan(tan(fov_y / 2) * aspect_x) * 2;
     float znear = 1.0;
@@ -85,35 +86,35 @@ void process_input()
                 break;
             }
             if (event.key.keysym.sym == SDLK_1) {
-                renderer->set_render_method(RenderMethod::WireVertex);
+                window->set_render_method(RenderMethod::WireVertex);
                 break;
             }
             if (event.key.keysym.sym == SDLK_2) {
-                renderer->set_render_method(RenderMethod::Wire);
+                window->set_render_method(RenderMethod::Wire);
                 break;
             }
             if (event.key.keysym.sym == SDLK_3) {
-                renderer->set_render_method(RenderMethod::FillTriangle);
+                window->set_render_method(RenderMethod::FillTriangle);
                 break;
             }
             if (event.key.keysym.sym == SDLK_4) {
-                renderer->set_render_method(RenderMethod::FillTriangleWire);
+                window->set_render_method(RenderMethod::FillTriangleWire);
                 break;
             }
             if (event.key.keysym.sym == SDLK_5) {
-                renderer->set_render_method(RenderMethod::Textured);
+                window->set_render_method(RenderMethod::Textured);
                 break;
             }
             if (event.key.keysym.sym == SDLK_6) {
-                renderer->set_render_method(RenderMethod::TexturedWire);
+                window->set_render_method(RenderMethod::TexturedWire);
                 break;
             }
             if (event.key.keysym.sym == SDLK_c) {
-                renderer->set_cull_method(CullMethod::Backface);
+                window->set_cull_method(CullMethod::Backface);
                 break;
             }
             if (event.key.keysym.sym == SDLK_x) {
-                renderer->set_cull_method(CullMethod::None);
+                window->set_cull_method(CullMethod::None);
                 break;
             }
             if (event.key.keysym.sym == SDLK_w) {
@@ -238,7 +239,7 @@ void update()
         float dot_normal_camera = vec3_dot(normal, camera_ray);
 
         // Backface culling test to see if the current face should be projected
-        if (renderer->should_cull_backface()) {
+        if (window->should_cull_backface()) {
             // Backface culling, bypassing triangles that are looking away from the camera
             if (dot_normal_camera < 0) {
                 continue;
@@ -285,12 +286,12 @@ void update()
                 projected_points[j].y *= -1;
 
                 // Scale into the view
-                projected_points[j].x *= (renderer->get_window_width() / 2.0);
-                projected_points[j].y *= (renderer->get_window_height() / 2.0);
+                projected_points[j].x *= (window->get_window_width() / 2.0);
+                projected_points[j].y *= (window->get_window_height() / 2.0);
 
                 // Translate the projected points to the middle of the screen
-                projected_points[j].x += (renderer->get_window_width() / 2.0);
-                projected_points[j].y += (renderer->get_window_height() / 2.0);
+                projected_points[j].x += (window->get_window_width() / 2.0);
+                projected_points[j].y += (window->get_window_height() / 2.0);
             }
 
             // Calculate the shade intensity based on how aliged is the normal with the flipped light direction ray
@@ -326,18 +327,18 @@ void update()
 void render()
 {
     // Clear all the arrays to get ready for the next frame
-    renderer->clear_color_buffer(0xFF000000);
-    renderer->clear_z_buffer();
+    window->clear_color_buffer(0xFF000000);
+    window->clear_z_buffer();
 
-    renderer->draw_grid();
+    window->draw_grid();
 
     // Loop all projected triangles and render them
     for (int i = 0; i < num_triangles_to_render; i++) {
         triangle_t triangle = triangles_to_render[i];
 
         // Draw filled triangle
-        if (renderer->should_render_filled_triangle()) {
-            renderer->draw_filled_triangle(
+        if (window->should_render_filled_triangle()) {
+            window->draw_filled_triangle(
                 triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, // vertex A
                 triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, // vertex B
                 triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, // vertex C
@@ -345,8 +346,8 @@ void render()
         }
 
         // Draw textured triangle
-        if (renderer->should_render_textured_triangle()) {
-            renderer->draw_textured_triangle(
+        if (window->should_render_textured_triangle()) {
+            window->draw_textured_triangle(
                 triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, triangle.texcoords[0].u, triangle.texcoords[0].v, // vertex A
                 triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, triangle.texcoords[1].u, triangle.texcoords[1].v, // vertex B
                 triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, triangle.texcoords[2].u, triangle.texcoords[2].v, // vertex C
@@ -354,8 +355,8 @@ void render()
         }
 
         // Draw triangle wireframe
-        if (renderer->should_render_wire()) {
-            renderer->draw_triangle(
+        if (window->should_render_wire()) {
+            window->draw_triangle(
                 triangle.points[0].x, triangle.points[0].y, // vertex A
                 triangle.points[1].x, triangle.points[1].y, // vertex B
                 triangle.points[2].x, triangle.points[2].y, // vertex C
@@ -363,20 +364,20 @@ void render()
         }
 
         // Draw triangle vertex points
-        if (renderer->should_render_wire_vertex()) {
-            renderer->draw_rect(triangle.points[0].x - 3, triangle.points[0].y - 3, 6, 6, 0xFF0000FF); // vertex A
-            renderer->draw_rect(triangle.points[1].x - 3, triangle.points[1].y - 3, 6, 6, 0xFF0000FF); // vertex B
-            renderer->draw_rect(triangle.points[2].x - 3, triangle.points[2].y - 3, 6, 6, 0xFF0000FF); // vertex C
+        if (window->should_render_wire_vertex()) {
+            window->draw_rect(triangle.points[0].x - 3, triangle.points[0].y - 3, 6, 6, 0xFF0000FF); // vertex A
+            window->draw_rect(triangle.points[1].x - 3, triangle.points[1].y - 3, 6, 6, 0xFF0000FF); // vertex B
+            window->draw_rect(triangle.points[2].x - 3, triangle.points[2].y - 3, 6, 6, 0xFF0000FF); // vertex C
         }
     }
 
     // Finally draw the color buffer to the SDL window
-    renderer->render_color_buffer();
+    window->render_color_buffer();
 }
 
 int main()
 {
-    renderer = new Renderer();
+    window = new Window();
     is_running = true;
 
     setup();

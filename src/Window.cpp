@@ -1,10 +1,10 @@
-#include "Renderer.h"
-#include "vector.h"
-#include <utility>
-#include <algorithm> // std::swap
-#include "texture.h"
+#include <algorithm>
 
-Renderer::Renderer()
+#include "texture.h"
+#include "Window.h"
+#include "vector.h"
+
+Window::Window()
 {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         fprintf(stderr, "Error initializing SDL.\n");
@@ -44,42 +44,42 @@ Renderer::Renderer()
         m_height);
 }
 
-void Renderer::set_render_method(RenderMethod method)
+void Window::set_render_method(RenderMethod method)
 {
     render_method = method;
 }
 
-void Renderer::set_cull_method(CullMethod method)
+void Window::set_cull_method(CullMethod method)
 {
     cull_method = method;
 }
 
-bool Renderer:: should_render_wire()
+bool Window:: should_render_wire()
 {
     return render_method == RenderMethod::Wire || render_method == RenderMethod::WireVertex || render_method == RenderMethod::FillTriangleWire || render_method == RenderMethod::TexturedWire;
 }
 
-bool Renderer:: should_render_wire_vertex()
+bool Window:: should_render_wire_vertex()
 {
     return (render_method == RenderMethod::WireVertex);
 }
 
-bool Renderer:: should_render_filled_triangle()
+bool Window:: should_render_filled_triangle()
 {
     return (render_method == RenderMethod::FillTriangle || render_method == RenderMethod::FillTriangleWire);
 }
 
-bool Renderer:: should_render_textured_triangle()
+bool Window:: should_render_textured_triangle()
 {
     return (render_method == RenderMethod::Textured || render_method == RenderMethod::TexturedWire);
 }
 
-bool Renderer:: should_cull_backface()
+bool Window:: should_cull_backface()
 {
     return cull_method == CullMethod::Backface;
 }
 
-void Renderer::draw_grid()
+void Window::draw_grid()
 {
     for (int y = 0; y < m_height; y += 10) {
         for (int x = 0; x < m_width; x += 10) {
@@ -88,7 +88,7 @@ void Renderer::draw_grid()
     }
 }
 
-void Renderer::draw_pixel(int x, int y, uint32_t color)
+void Window::draw_pixel(int x, int y, uint32_t color)
 {
     if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
         return;
@@ -96,7 +96,7 @@ void Renderer::draw_pixel(int x, int y, uint32_t color)
     color_buffer[(m_width * y) + x] = color;
 }
 
-void Renderer::draw_line(int x0, int y0, int x1, int y1, uint32_t color)
+void Window::draw_line(int x0, int y0, int x1, int y1, uint32_t color)
 {
     int delta_x = (x1 - x0);
     int delta_y = (y1 - y0);
@@ -116,7 +116,7 @@ void Renderer::draw_line(int x0, int y0, int x1, int y1, uint32_t color)
     }
 }
 
-void Renderer::draw_rect(int x, int y, int width, int height, uint32_t color)
+void Window::draw_rect(int x, int y, int width, int height, uint32_t color)
 {
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
@@ -127,7 +127,7 @@ void Renderer::draw_rect(int x, int y, int width, int height, uint32_t color)
     }
 }
 
-void Renderer::render_color_buffer()
+void Window::render_color_buffer()
 {
     SDL_UpdateTexture(
         colorbuffer_texture,
@@ -138,21 +138,21 @@ void Renderer::render_color_buffer()
     SDL_RenderPresent(renderer);
 }
 
-void Renderer::clear_color_buffer(uint32_t color)
+void Window::clear_color_buffer(uint32_t color)
 {
     for (int i = 0; i < m_width * m_height; i++) {
         color_buffer[i] = color;
     }
 }
 
-void Renderer::clear_z_buffer()
+void Window::clear_z_buffer()
 {
     for (int i = 0; i < m_width * m_height; i++) {
         depth_buffer[i] = 1.0;
     }
 }
 
-float Renderer:: get_zbuffer_at(int x, int y)
+float Window:: get_zbuffer_at(int x, int y)
 {
     if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
         return 1.0;
@@ -160,7 +160,7 @@ float Renderer:: get_zbuffer_at(int x, int y)
     return depth_buffer[(m_width * y) + x];
 }
 
-void Renderer::update_zbuffer_at(int x, int y, float value)
+void Window::update_zbuffer_at(int x, int y, float value)
 {
     if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
         return;
@@ -168,7 +168,7 @@ void Renderer::update_zbuffer_at(int x, int y, float value)
     depth_buffer[(m_width * y) + x] = value;
 }
 
-Renderer::~Renderer()
+Window::~Window()
 {
     free(color_buffer);
     free(depth_buffer);
@@ -215,7 +215,7 @@ vec3_t barycentric_weights(vec2_t a, vec2_t b, vec2_t c, vec2_t p)
 }
 
 // Draw a triangle using three raw line calls
-void Renderer::draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color)
+void Window::draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color)
 {
     draw_line(x0, y0, x1, y1, color);
     draw_line(x1, y1, x2, y2, color);
@@ -223,7 +223,7 @@ void Renderer::draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uin
 }
 
 // Function to draw a solid pixel at position (x,y) using depth interpolation
-void Renderer::draw_triangle_pixel(
+void Window::draw_triangle_pixel(
     int x, int y, uint32_t color,
     vec4_t point_a, vec4_t point_b, vec4_t point_c)
 {
@@ -257,7 +257,7 @@ void Renderer::draw_triangle_pixel(
 }
 
 // Function to draw the textured pixel at position (x,y) using depth interpolation
-void Renderer::draw_triangle_texel(
+void Window::draw_triangle_texel(
     int x, int y, uint32_t* texture,
     vec4_t point_a, vec4_t point_b, vec4_t point_c,
     tex2_t a_uv, tex2_t b_uv, tex2_t c_uv)
@@ -324,7 +324,7 @@ void Renderer::draw_triangle_texel(
                      \
                       v2
 */
-void Renderer::draw_textured_triangle(
+void Window::draw_textured_triangle(
     int x0, int y0, float z0, float w0, float u0, float v0,
     int x1, int y1, float z1, float w1, float u1, float v1,
     int x2, int y2, float z2, float w2, float u2, float v2,
@@ -440,7 +440,7 @@ void Renderer::draw_textured_triangle(
                              \
                            (x2,y2)
 */
-void Renderer::draw_filled_triangle(
+void Window::draw_filled_triangle(
     int x0, int y0, float z0, float w0,
     int x1, int y1, float z1, float w1,
     int x2, int y2, float z2, float w2,

@@ -21,10 +21,10 @@ enum class RenderMethod {
     TexturedWire
 };
 
-class Renderer {
+class Window {
 public:
-    Renderer();
-    ~Renderer();
+    Window();
+    ~Window();
 
     SDL_Window* window = NULL;
     SDL_Renderer* renderer = NULL;
