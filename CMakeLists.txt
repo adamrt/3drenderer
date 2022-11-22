@@ -22,7 +22,6 @@ add_executable(renderer
   src/light.cpp
   src/matrix.cpp
   src/mesh.cpp
-  src/swap.cpp
   src/texture.cpp
   src/triangle.cpp
   src/upng.cpp
