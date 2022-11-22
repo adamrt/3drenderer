@@ -45,8 +45,8 @@ Renderer* renderer;
 void setup()
 {
     // Initialize render mode and triangle culling method
-    renderer->set_render_method(RENDER_TEXTURED);
-    renderer->set_cull_method(CULL_BACKFACE);
+    renderer->set_render_method(RenderMethod::Textured);
+    renderer->set_cull_method(CullMethod::Backface);
 
     // Initialize the scene light direction
     init_light(vec3_new(0, 0, 1));
@@ -85,35 +85,35 @@ void process_input()
                 break;
             }
             if (event.key.keysym.sym == SDLK_1) {
-                renderer->set_render_method(RENDER_WIRE_VERTEX);
+                renderer->set_render_method(RenderMethod::WireVertex);
                 break;
             }
             if (event.key.keysym.sym == SDLK_2) {
-                renderer->set_render_method(RENDER_WIRE);
+                renderer->set_render_method(RenderMethod::Wire);
                 break;
             }
             if (event.key.keysym.sym == SDLK_3) {
-                renderer->set_render_method(RENDER_FILL_TRIANGLE);
+                renderer->set_render_method(RenderMethod::FillTriangle);
                 break;
             }
             if (event.key.keysym.sym == SDLK_4) {
-                renderer->set_render_method(RENDER_FILL_TRIANGLE_WIRE);
+                renderer->set_render_method(RenderMethod::FillTriangleWire);
                 break;
             }
             if (event.key.keysym.sym == SDLK_5) {
-                renderer->set_render_method(RENDER_TEXTURED);
+                renderer->set_render_method(RenderMethod::Textured);
                 break;
             }
             if (event.key.keysym.sym == SDLK_6) {
-                renderer->set_render_method(RENDER_TEXTURED_WIRE);
+                renderer->set_render_method(RenderMethod::TexturedWire);
                 break;
             }
             if (event.key.keysym.sym == SDLK_c) {
-                renderer->set_cull_method(CULL_BACKFACE);
+                renderer->set_cull_method(CullMethod::Backface);
                 break;
             }
             if (event.key.keysym.sym == SDLK_x) {
-                renderer->set_cull_method(CULL_NONE);
+                renderer->set_cull_method(CullMethod::None);
                 break;
             }
             if (event.key.keysym.sym == SDLK_w) {

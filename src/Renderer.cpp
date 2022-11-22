@@ -32,8 +32,8 @@ Renderer::Renderer()
     }
 
     // Allocate the required memory in bytes to hold the color buffer and the z-buffer
-    colorbuffer = (uint32_t*)malloc(sizeof(uint32_t) * m_width * m_height);
-    zbuffer = (float*)malloc(sizeof(float) * m_width * m_height);
+    color_buffer = (uint32_t*)malloc(sizeof(uint32_t) * m_width * m_height);
+    depth_buffer = (float*)malloc(sizeof(float) * m_width * m_height);
 
     // Creating a SDL texture that is used to display the color buffer
     colorbuffer_texture = SDL_CreateTexture(
@@ -44,46 +44,46 @@ Renderer::Renderer()
         m_height);
 }
 
-void Renderer::set_render_method(int method)
+void Renderer::set_render_method(RenderMethod method)
 {
     render_method = method;
 }
 
-void Renderer::set_cull_method(int method)
+void Renderer::set_cull_method(CullMethod method)
 {
     cull_method = method;
 }
 
 bool Renderer:: should_render_wire()
 {
-    return render_method == RENDER_WIRE || render_method == RENDER_WIRE_VERTEX || render_method == RENDER_FILL_TRIANGLE_WIRE || render_method == RENDER_TEXTURED_WIRE;
+    return render_method == RenderMethod::Wire || render_method == RenderMethod::WireVertex || render_method == RenderMethod::FillTriangleWire || render_method == RenderMethod::TexturedWire;
 }
 
 bool Renderer:: should_render_wire_vertex()
 {
-    return (render_method == RENDER_WIRE_VERTEX);
+    return (render_method == RenderMethod::WireVertex);
 }
 
 bool Renderer:: should_render_filled_triangle()
 {
-    return (render_method == RENDER_FILL_TRIANGLE || render_method == RENDER_FILL_TRIANGLE_WIRE);
+    return (render_method == RenderMethod::FillTriangle || render_method == RenderMethod::FillTriangleWire);
 }
 
 bool Renderer:: should_render_textured_triangle()
 {
-    return (render_method == RENDER_TEXTURED || render_method == RENDER_TEXTURED_WIRE);
+    return (render_method == RenderMethod::Textured || render_method == RenderMethod::TexturedWire);
 }
 
 bool Renderer:: should_cull_backface()
 {
-    return cull_method == CULL_BACKFACE;
+    return cull_method == CullMethod::Backface;
 }
 
 void Renderer::draw_grid()
 {
     for (int y = 0; y < m_height; y += 10) {
         for (int x = 0; x < m_width; x += 10) {
-            colorbuffer[(m_width * y) + x] = 0xFF444444;
+            color_buffer[(m_width * y) + x] = 0xFF444444;
         }
     }
 }
@@ -93,7 +93,7 @@ void Renderer::draw_pixel(int x, int y, uint32_t color)
     if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
         return;
     }
-    colorbuffer[(m_width * y) + x] = color;
+    color_buffer[(m_width * y) + x] = color;
 }
 
 void Renderer::draw_line(int x0, int y0, int x1, int y1, uint32_t color)
@@ -132,7 +132,7 @@ void Renderer::render_color_buffer()
     SDL_UpdateTexture(
         colorbuffer_texture,
         NULL,
-        colorbuffer,
+        color_buffer,
         (int)(m_width * sizeof(uint32_t)));
     SDL_RenderCopy(renderer, colorbuffer_texture, NULL, NULL);
     SDL_RenderPresent(renderer);
@@ -141,14 +141,14 @@ void Renderer::render_color_buffer()
 void Renderer::clear_color_buffer(uint32_t color)
 {
     for (int i = 0; i < m_width * m_height; i++) {
-        colorbuffer[i] = color;
+        color_buffer[i] = color;
     }
 }
 
 void Renderer::clear_z_buffer()
 {
     for (int i = 0; i < m_width * m_height; i++) {
-        zbuffer[i] = 1.0;
+        depth_buffer[i] = 1.0;
     }
 }
 
@@ -157,7 +157,7 @@ float Renderer:: get_zbuffer_at(int x, int y)
     if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
         return 1.0;
     }
-    return zbuffer[(m_width * y) + x];
+    return depth_buffer[(m_width * y) + x];
 }
 
 void Renderer::update_zbuffer_at(int x, int y, float value)
@@ -165,13 +165,13 @@ void Renderer::update_zbuffer_at(int x, int y, float value)
     if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
         return;
     }
-    zbuffer[(m_width * y) + x] = value;
+    depth_buffer[(m_width * y) + x] = value;
 }
 
 Renderer::~Renderer()
 {
-    free(colorbuffer);
-    free(zbuffer);
+    free(color_buffer);
+    free(depth_buffer);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
