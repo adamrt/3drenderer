@@ -1,3 +1,4 @@
+#include <SDL2/SDL_video.h>
 #include <algorithm>
 
 #include "Framebuffer.h"
@@ -39,6 +40,10 @@ Window::Window()
         SDL_TEXTUREACCESS_STREAMING,
         m_width,
         m_height);
+}
+
+void Window::set_title(std::string title) {
+    SDL_SetWindowTitle(m_window, title.c_str());
 }
 
 void Window::update(Framebuffer* framebuffer)

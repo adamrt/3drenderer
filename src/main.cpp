@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string>
 
 #include "Framebuffer.h"
 #include "Window.h"
@@ -380,11 +381,25 @@ int main()
     is_running = true;
 
     setup();
+    int fps = 0;
+    int fps_timer = 0;
 
     while (is_running) {
+        int now = SDL_GetTicks();
+        // count fps in 1 sec (1000 ms)
+        if (now > fps_timer + 1000) {
+            std::string title = std::to_string(fps);
+            title.append(" FPS");
+            window->set_title(title);
+            fps_timer = now;
+            fps = 0;
+        }
+
         process_input();
         update();
         render();
+
+        fps++;
     }
 
     return 0;

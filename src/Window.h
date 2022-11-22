@@ -14,6 +14,7 @@ public:
     Window();
     ~Window();
 
+    void set_title(std::string title);
     void update(Framebuffer* framebuffer);
 
     int get_width() { return m_width; }
