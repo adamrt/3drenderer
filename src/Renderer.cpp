@@ -1,6 +1,181 @@
-#include "triangle.h"
-#include "display.h"
-#include "swap.h"
+#include "Renderer.h"
+#include "vector.h"
+#include <utility>
+#include <algorithm> // std::swap
+#include "texture.h"
+
+Renderer::Renderer()
+{
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
+        fprintf(stderr, "Error initializing SDL.\n");
+    }
+
+    // Set width and height of the SDL window with the max screen resolution
+    SDL_DisplayMode display_mode;
+    SDL_GetCurrentDisplayMode(0, &display_mode);
+    int fullscreen_width = display_mode.w;
+    int fullscreen_height = display_mode.h;
+
+    m_width = fullscreen_width / 2.0;
+    m_height = fullscreen_height / 2.0;
+
+    // Create a SDL Window
+    window = SDL_CreateWindow(NULL, 0, 0, m_width, m_height, SDL_WINDOW_SHOWN);
+    if (!window) {
+        fprintf(stderr, "Error creating SDL window.\n");
+    }
+
+    // Create a SDL renderer
+    renderer = SDL_CreateRenderer(window, -1, 0);
+    if (!renderer) {
+        fprintf(stderr, "Error creating SDL renderer.\n");
+    }
+
+    // Allocate the required memory in bytes to hold the color buffer and the z-buffer
+    colorbuffer = (uint32_t*)malloc(sizeof(uint32_t) * m_width * m_height);
+    zbuffer = (float*)malloc(sizeof(float) * m_width * m_height);
+
+    // Creating a SDL texture that is used to display the color buffer
+    colorbuffer_texture = SDL_CreateTexture(
+        renderer,
+        SDL_PIXELFORMAT_RGBA32,
+        SDL_TEXTUREACCESS_STREAMING,
+        m_width,
+        m_height);
+}
+
+void Renderer::set_render_method(int method)
+{
+    render_method = method;
+}
+
+void Renderer::set_cull_method(int method)
+{
+    cull_method = method;
+}
+
+bool Renderer:: should_render_wire()
+{
+    return render_method == RENDER_WIRE || render_method == RENDER_WIRE_VERTEX || render_method == RENDER_FILL_TRIANGLE_WIRE || render_method == RENDER_TEXTURED_WIRE;
+}
+
+bool Renderer:: should_render_wire_vertex()
+{
+    return (render_method == RENDER_WIRE_VERTEX);
+}
+
+bool Renderer:: should_render_filled_triangle()
+{
+    return (render_method == RENDER_FILL_TRIANGLE || render_method == RENDER_FILL_TRIANGLE_WIRE);
+}
+
+bool Renderer:: should_render_textured_triangle()
+{
+    return (render_method == RENDER_TEXTURED || render_method == RENDER_TEXTURED_WIRE);
+}
+
+bool Renderer:: should_cull_backface()
+{
+    return cull_method == CULL_BACKFACE;
+}
+
+void Renderer::draw_grid()
+{
+    for (int y = 0; y < m_height; y += 10) {
+        for (int x = 0; x < m_width; x += 10) {
+            colorbuffer[(m_width * y) + x] = 0xFF444444;
+        }
+    }
+}
+
+void Renderer::draw_pixel(int x, int y, uint32_t color)
+{
+    if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
+        return;
+    }
+    colorbuffer[(m_width * y) + x] = color;
+}
+
+void Renderer::draw_line(int x0, int y0, int x1, int y1, uint32_t color)
+{
+    int delta_x = (x1 - x0);
+    int delta_y = (y1 - y0);
+
+    int longest_side_length = (abs(delta_x) >= abs(delta_y)) ? abs(delta_x) : abs(delta_y);
+
+    float x_inc = delta_x / (float)longest_side_length;
+    float y_inc = delta_y / (float)longest_side_length;
+
+    float current_x = x0;
+    float current_y = y0;
+
+    for (int i = 0; i <= longest_side_length; i++) {
+        draw_pixel(round(current_x), round(current_y), color);
+        current_x += x_inc;
+        current_y += y_inc;
+    }
+}
+
+void Renderer::draw_rect(int x, int y, int width, int height, uint32_t color)
+{
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            int current_x = x + i;
+            int current_y = y + j;
+            draw_pixel(current_x, current_y, color);
+        }
+    }
+}
+
+void Renderer::render_color_buffer()
+{
+    SDL_UpdateTexture(
+        colorbuffer_texture,
+        NULL,
+        colorbuffer,
+        (int)(m_width * sizeof(uint32_t)));
+    SDL_RenderCopy(renderer, colorbuffer_texture, NULL, NULL);
+    SDL_RenderPresent(renderer);
+}
+
+void Renderer::clear_color_buffer(uint32_t color)
+{
+    for (int i = 0; i < m_width * m_height; i++) {
+        colorbuffer[i] = color;
+    }
+}
+
+void Renderer::clear_z_buffer()
+{
+    for (int i = 0; i < m_width * m_height; i++) {
+        zbuffer[i] = 1.0;
+    }
+}
+
+float Renderer:: get_zbuffer_at(int x, int y)
+{
+    if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
+        return 1.0;
+    }
+    return zbuffer[(m_width * y) + x];
+}
+
+void Renderer::update_zbuffer_at(int x, int y, float value)
+{
+    if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
+        return;
+    }
+    zbuffer[(m_width * y) + x] = value;
+}
+
+Renderer::~Renderer()
+{
+    free(colorbuffer);
+    free(zbuffer);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+}
 
 /* Return the barycentric weights alpha, beta, and gamma for point p
 
@@ -40,7 +215,7 @@ vec3_t barycentric_weights(vec2_t a, vec2_t b, vec2_t c, vec2_t p)
 }
 
 // Draw a triangle using three raw line calls
-void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color)
+void Renderer::draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color)
 {
     draw_line(x0, y0, x1, y1, color);
     draw_line(x1, y1, x2, y2, color);
@@ -48,7 +223,7 @@ void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t colo
 }
 
 // Function to draw a solid pixel at position (x,y) using depth interpolation
-void draw_triangle_pixel(
+void Renderer::draw_triangle_pixel(
     int x, int y, uint32_t color,
     vec4_t point_a, vec4_t point_b, vec4_t point_c)
 {
@@ -82,7 +257,7 @@ void draw_triangle_pixel(
 }
 
 // Function to draw the textured pixel at position (x,y) using depth interpolation
-void draw_triangle_texel(
+void Renderer::draw_triangle_texel(
     int x, int y, uint32_t* texture,
     vec4_t point_a, vec4_t point_b, vec4_t point_c,
     tex2_t a_uv, tex2_t b_uv, tex2_t c_uv)
@@ -149,7 +324,7 @@ void draw_triangle_texel(
                      \
                       v2
 */
-void draw_textured_triangle(
+void Renderer::draw_textured_triangle(
     int x0, int y0, float z0, float w0, float u0, float v0,
     int x1, int y1, float z1, float w1, float u1, float v1,
     int x2, int y2, float z2, float w2, float u2, float v2,
@@ -157,28 +332,28 @@ void draw_textured_triangle(
 {
     // We need to sort the vertices by y-coordinate ascending (y0 < y1 < y2)
     if (y0 > y1) {
-        int_swap(&y0, &y1);
-        int_swap(&x0, &x1);
-        float_swap(&z0, &z1);
-        float_swap(&w0, &w1);
-        float_swap(&u0, &u1);
-        float_swap(&v0, &v1);
+        std::swap(y0, y1);
+        std::swap(x0, x1);
+        std::swap(z0, z1);
+        std::swap(w0, w1);
+        std::swap(u0, u1);
+        std::swap(v0, v1);
     }
     if (y1 > y2) {
-        int_swap(&y1, &y2);
-        int_swap(&x1, &x2);
-        float_swap(&z1, &z2);
-        float_swap(&w1, &w2);
-        float_swap(&u1, &u2);
-        float_swap(&v1, &v2);
+        std::swap(y1, y2);
+        std::swap(x1, x2);
+        std::swap(z1, z2);
+        std::swap(w1, w2);
+        std::swap(u1, u2);
+        std::swap(v1, v2);
     }
     if (y0 > y1) {
-        int_swap(&y0, &y1);
-        int_swap(&x0, &x1);
-        float_swap(&z0, &z1);
-        float_swap(&w0, &w1);
-        float_swap(&u0, &u1);
-        float_swap(&v0, &v1);
+        std::swap(y0, y1);
+        std::swap(x0, x1);
+        std::swap(z0, z1);
+        std::swap(w0, w1);
+        std::swap(u0, u1);
+        std::swap(v0, v1);
     }
 
     // Flip the V component to account for inverted UV-coordinates (V grows downwards)
@@ -209,7 +384,7 @@ void draw_textured_triangle(
             int x_end = x0 + (y - y0) * inv_slope_2;
 
             if (x_end < x_start) {
-                int_swap(&x_start, &x_end); // swap if x_start is to the right of x_end
+                std::swap(x_start, x_end); // swap if x_start is to the right of x_end
             }
 
             for (int x = x_start; x < x_end; x++) {
@@ -234,7 +409,7 @@ void draw_textured_triangle(
             int x_end = x0 + (y - y0) * inv_slope_2;
 
             if (x_end < x_start) {
-                int_swap(&x_start, &x_end); // swap if x_start is to the right of x_end
+                std::swap(x_start, x_end); // swap if x_start is to the right of x_end
             }
 
             for (int x = x_start; x < x_end; x++) {
@@ -265,7 +440,7 @@ void draw_textured_triangle(
                              \
                            (x2,y2)
 */
-void draw_filled_triangle(
+void Renderer::draw_filled_triangle(
     int x0, int y0, float z0, float w0,
     int x1, int y1, float z1, float w1,
     int x2, int y2, float z2, float w2,
@@ -273,22 +448,22 @@ void draw_filled_triangle(
 {
     // We need to sort the vertices by y-coordinate ascending (y0 < y1 < y2)
     if (y0 > y1) {
-        int_swap(&y0, &y1);
-        int_swap(&x0, &x1);
-        float_swap(&z0, &z1);
-        float_swap(&w0, &w1);
+        std::swap(y0, y1);
+        std::swap(x0, x1);
+        std::swap(z0, z1);
+        std::swap(w0, w1);
     }
     if (y1 > y2) {
-        int_swap(&y1, &y2);
-        int_swap(&x1, &x2);
-        float_swap(&z1, &z2);
-        float_swap(&w1, &w2);
+        std::swap(y1, y2);
+        std::swap(x1, x2);
+        std::swap(z1, z2);
+        std::swap(w1, w2);
     }
     if (y0 > y1) {
-        int_swap(&y0, &y1);
-        int_swap(&x0, &x1);
-        float_swap(&z0, &z1);
-        float_swap(&w0, &w1);
+        std::swap(y0, y1);
+        std::swap(x0, x1);
+        std::swap(z0, z1);
+        std::swap(w0, w1);
     }
 
     // Create three vector points after we sort the vertices
@@ -311,7 +486,7 @@ void draw_filled_triangle(
             int x_end = x0 + (y - y0) * inv_slope_2;
 
             if (x_end < x_start) {
-                int_swap(&x_start, &x_end); // swap if x_start is to the right of x_end
+                std::swap(x_start, x_end); // swap if x_start is to the right of x_end
             }
 
             for (int x = x_start; x < x_end; x++) {
@@ -336,7 +511,7 @@ void draw_filled_triangle(
             int x_end = x0 + (y - y0) * inv_slope_2;
 
             if (x_end < x_start) {
-                int_swap(&x_start, &x_end); // swap if x_start is to the right of x_end
+                std::swap(x_start, x_end); // swap if x_start is to the right of x_end
             }
 
             for (int x = x_start; x < x_end; x++) {

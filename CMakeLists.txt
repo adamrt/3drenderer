@@ -18,12 +18,11 @@ add_executable(renderer
   src/main.cpp
   src/camera.cpp
   src/clipping.cpp
-  src/display.cpp
   src/light.cpp
   src/matrix.cpp
   src/mesh.cpp
+  src/Renderer.cpp
   src/texture.cpp
-  src/triangle.cpp
   src/upng.cpp
   src/vector.cpp)
 
