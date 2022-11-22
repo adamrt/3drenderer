@@ -106,16 +106,16 @@ void Framebuffer::draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, 
 // Function to draw a solid pixel at position (x,y) using depth interpolation
 void Framebuffer::draw_triangle_pixel(
     int x, int y, uint32_t color,
-    vec4_t point_a, vec4_t point_b, vec4_t point_c)
+    glm::vec4 point_a, glm::vec4 point_b, glm::vec4 point_c)
 {
     // Create three vec2 to find the interpolation
-    vec2_t p = { (float)x, (float)y };
-    vec2_t a = vec2_from_vec4(point_a);
-    vec2_t b = vec2_from_vec4(point_b);
-    vec2_t c = vec2_from_vec4(point_c);
+    glm::vec2 p = { (float)x, (float)y };
+    glm::vec2 a = point_a;
+    glm::vec2 b = point_b;
+    glm::vec2 c = point_c;
 
     // Calculate the barycentric coordinates of our point 'p' inside the triangle
-    vec3_t weights = barycentric_weights(a, b, c, p);
+    glm::vec3 weights = barycentric_weights(a, b, c, p);
 
     float alpha = weights.x;
     float beta = weights.y;
@@ -140,16 +140,16 @@ void Framebuffer::draw_triangle_pixel(
 // Function to draw the textured pixel at position (x,y) using depth interpolation
 void Framebuffer::draw_triangle_texel(
     int x, int y, uint32_t* texture,
-    vec4_t point_a, vec4_t point_b, vec4_t point_c,
+    glm::vec4 point_a, glm::vec4 point_b, glm::vec4 point_c,
     tex2_t a_uv, tex2_t b_uv, tex2_t c_uv)
 {
-    vec2_t p = { (float)x, (float)y };
-    vec2_t a = vec2_from_vec4(point_a);
-    vec2_t b = vec2_from_vec4(point_b);
-    vec2_t c = vec2_from_vec4(point_c);
+    glm::vec2 p = { (float)x, (float)y };
+    glm::vec2 a = point_a;
+    glm::vec2 b = point_b;
+    glm::vec2 c = point_c;
 
     // Calculate the barycentric coordinates of our point 'p' inside the triangle
-    vec3_t weights = barycentric_weights(a, b, c, p);
+    glm::vec3 weights = barycentric_weights(a, b, c, p);
 
     float alpha = weights.x;
     float beta = weights.y;
@@ -243,9 +243,9 @@ void Framebuffer::draw_textured_triangle(
     v2 = 1.0 - v2;
 
     // Create vector points and texture coords after we sort the vertices
-    vec4_t point_a = { (float)x0, (float)y0, z0, w0 };
-    vec4_t point_b = { (float)x1, (float)y1, z1, w1 };
-    vec4_t point_c = { (float)x2, (float)y2, z2, w2 };
+    glm::vec4 point_a = { (float)x0, (float)y0, z0, w0 };
+    glm::vec4 point_b = { (float)x1, (float)y1, z1, w1 };
+    glm::vec4 point_c = { (float)x2, (float)y2, z2, w2 };
     tex2_t a_uv = { u0, v0 };
     tex2_t b_uv = { u1, v1 };
     tex2_t c_uv = { u2, v2 };
@@ -348,9 +348,9 @@ void Framebuffer::draw_filled_triangle(
     }
 
     // Create three vector points after we sort the vertices
-    vec4_t point_a = { (float)x0, (float)y0, z0, w0 };
-    vec4_t point_b = { (float)x1, (float)y1, z1, w1 };
-    vec4_t point_c = { (float)x2, (float)y2, z2, w2 };
+    glm::vec4 point_a = { (float)x0, (float)y0, z0, w0 };
+    glm::vec4 point_b = { (float)x1, (float)y1, z1, w1 };
+    glm::vec4 point_c = { (float)x2, (float)y2, z2, w2 };
 
     // Render the upper part of the triangle (flat-bottom)
     float inv_slope_1 = 0;
@@ -450,14 +450,14 @@ bool Framebuffer::should_cull_backface()
      //           \\
     B ------------- C
 */
-vec3_t barycentric_weights(vec2_t a, vec2_t b, vec2_t c, vec2_t p)
+glm::vec3 barycentric_weights(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec2 p)
 {
     // Find the vectors between the vertices ABC and point p
-    vec2_t ab = vec2_sub(b, a);
-    vec2_t bc = vec2_sub(c, b);
-    vec2_t ac = vec2_sub(c, a);
-    vec2_t ap = vec2_sub(p, a);
-    vec2_t bp = vec2_sub(p, b);
+    glm::vec2 ab = b - a;
+    glm::vec2 bc = c - b;
+    glm::vec2 ac = c - a;
+    glm::vec2 ap = p - a;
+    glm::vec2 bp = p - b;
 
     // Calcualte the area of the full triangle ABC using cross product (area of parallelogram)
     float area_triangle_abc = (ab.x * ac.y - ab.y * ac.x);
@@ -471,6 +471,6 @@ vec3_t barycentric_weights(vec2_t a, vec2_t b, vec2_t c, vec2_t p)
     // Weight gamma is easily found since barycentric cooordinates always add up to 1
     float gamma = 1 - alpha - beta;
 
-    vec3_t weights = { alpha, beta, gamma };
+    glm::vec3 weights = { alpha, beta, gamma };
     return weights;
 }

@@ -24,7 +24,7 @@ add_executable(renderer
   src/mesh.cpp
   src/Window.cpp
   src/texture.cpp
-  src/upng.cpp
-  src/vector.cpp)
+  src/upng.cpp)
+
 
 target_link_libraries(renderer m SDL2)

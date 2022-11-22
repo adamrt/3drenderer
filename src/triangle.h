@@ -2,7 +2,7 @@
 #define TRIANGLE_H
 
 #include "texture.h"
-#include "vector.h"
+#include <glm/vec4.hpp>
 #include <stdint.h>
 
 typedef struct {
@@ -16,7 +16,7 @@ typedef struct {
 } face_t;
 
 typedef struct {
-    vec4_t points[3];
+    glm::vec4 points[3];
     tex2_t texcoords[3];
     uint32_t color;
 } triangle_t;

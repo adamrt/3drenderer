@@ -2,12 +2,12 @@
 
 static light_t light;
 
-void init_light(vec3_t direction)
+void init_light(glm::vec3 direction)
 {
     light.direction = direction;
 }
 
-vec3_t get_light_direction(void)
+glm::vec3 get_light_direction(void)
 {
     return light.direction;
 }

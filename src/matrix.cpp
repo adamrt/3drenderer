@@ -1,5 +1,6 @@
 #include "matrix.h"
 #include <math.h>
+#include <glm/glm.hpp> // vec3 normalize reflect dot pow
 
 mat4_t mat4_identity(void)
 {
@@ -88,9 +89,9 @@ mat4_t mat4_make_rotation_z(float angle)
     return m;
 }
 
-vec4_t mat4_mul_vec4(mat4_t m, vec4_t v)
+glm::vec4 mat4_mul_vec4(mat4_t m, glm::vec4 v)
 {
-    vec4_t result;
+    glm::vec4 result;
     result.x = m.m[0][0] * v.x + m.m[0][1] * v.y + m.m[0][2] * v.z + m.m[0][3] * v.w;
     result.y = m.m[1][0] * v.x + m.m[1][1] * v.y + m.m[1][2] * v.z + m.m[1][3] * v.w;
     result.z = m.m[2][0] * v.x + m.m[2][1] * v.y + m.m[2][2] * v.z + m.m[2][3] * v.w;
@@ -124,22 +125,22 @@ mat4_t mat4_make_perspective(float fov, float aspect, float znear, float zfar)
     return m;
 }
 
-mat4_t mat4_look_at(vec3_t eye, vec3_t target, vec3_t up)
+mat4_t mat4_look_at(glm::vec3 eye, glm::vec3 target, glm::vec3 up)
 {
     // Compute the forward (z), right (x), and up (y) vectors
-    vec3_t z = vec3_sub(target, eye);
-    vec3_normalize(&z);
-    vec3_t x = vec3_cross(up, z);
-    vec3_normalize(&x);
-    vec3_t y = vec3_cross(z, x);
+    glm::vec3 z = target - eye;
+    z = glm::normalize(z);
+    glm::vec3 x = glm::cross(up, z);
+    x = glm::normalize(x);
+    glm::vec3 y = glm::cross(z, x);
 
     // | x.x   x.y   x.z  -dot(x,eye) |
     // | y.x   y.y   y.z  -dot(y,eye) |
     // | z.x   z.y   z.z  -dot(z,eye) |
     // |   0     0     0            1 |
-    mat4_t view_matrix = { { { x.x, x.y, x.z, -vec3_dot(x, eye) },
-        { y.x, y.y, y.z, -vec3_dot(y, eye) },
-        { z.x, z.y, z.z, -vec3_dot(z, eye) },
+    mat4_t view_matrix = { { { x.x, x.y, x.z, -glm::dot(x, eye) },
+        { y.x, y.y, y.z, -glm::dot(y, eye) },
+        { z.x, z.y, z.z, -glm::dot(z, eye) },
         { 0, 0, 0, 1 } } };
     return view_matrix;
 }

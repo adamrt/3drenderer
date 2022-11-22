@@ -1,8 +1,12 @@
-#include <SDL2/SDL.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string>
+
+#include <SDL2/SDL.h>
+#include <glm/geometric.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 #include "Framebuffer.h"
 #include "Window.h"
@@ -14,7 +18,6 @@
 #include "texture.h"
 #include "triangle.h"
 #include "upng.h"
-#include "vector.h"
 
 // Global variables for execution status and game loop
 bool is_running = false;
@@ -49,7 +52,7 @@ Framebuffer* fb;
 void setup()
 {
     // Initialize the scene light direction
-    init_light(vec3_new(0, 0, 1));
+    init_light(glm::vec3(0, 0, 1));
 
     // Initialize the perspective projection matrix
     float aspect_y = (float)window->get_height() / (float)window->get_width();
@@ -117,24 +120,24 @@ void process_input()
                 break;
             }
             if (event.key.keysym.sym == SDLK_w) {
-                camera_set_velocity(vec3_mul(camera_get_direction(), 10.0 * delta_time));
-                camera_set_position(vec3_add(camera_get_position(), camera_get_velocity()));
+                camera_set_velocity(camera_get_direction() * (float)10.0 * delta_time);
+                camera_set_position(camera_get_position() + camera_get_velocity());
                 break;
             }
             if (event.key.keysym.sym == SDLK_s) {
-                camera_set_velocity(vec3_mul(camera_get_direction(), 10.0 * delta_time));
-                camera_set_position(vec3_sub(camera_get_position(), camera_get_velocity()));
+                camera_set_velocity(camera_get_direction() * (float)10.0 * delta_time);
+                camera_set_position(camera_get_position() - camera_get_velocity());
                 break;
             }
             if (event.key.keysym.sym == SDLK_a) {
-                camera_set_velocity(vec3_mul(vec3_new(-1.0, 0, 0), 10.0 * delta_time));
-                camera_set_position(vec3_add(camera_get_position(), camera_get_velocity()));
+                camera_set_velocity(glm::vec3(-1.0, 0, 0) * (float)10.0 * delta_time);
+                camera_set_position(camera_get_position() + camera_get_velocity());
 
                 break;
             }
             if (event.key.keysym.sym == SDLK_d) {
-                camera_set_velocity(vec3_mul(vec3_new(1.0, 0, 0), 10.0 * delta_time));
-                camera_set_position(vec3_add(camera_get_position(), camera_get_velocity()));
+                camera_set_velocity(glm::vec3(1.0, 0, 0) * (float)10.0 * delta_time);
+                camera_set_position(camera_get_position() + camera_get_velocity());
 
                 break;
             }
@@ -176,24 +179,24 @@ void update()
     mat4_t rotation_matrix_z = mat4_make_rotation_z(mesh.rotation.z);
 
     // Update camera look at target to create view matrix
-    vec3_t target = camera_get_lookat();
-    vec3_t up_direction = vec3_new(0, 1, 0);
+    glm::vec3 target = camera_get_lookat();
+    glm::vec3 up_direction = glm::vec3(0, 1, 0);
     view_matrix = mat4_look_at(camera_get_position(), target, up_direction);
 
     // Loop all triangle faces of our mesh
     for (uint32_t i = 0; i < mesh.num_faces; i++) {
         face_t mesh_face = mesh.faces[i];
 
-        vec3_t face_vertices[3];
+        glm::vec3 face_vertices[3];
         face_vertices[0] = mesh.vertices[mesh_face.a - 1];
         face_vertices[1] = mesh.vertices[mesh_face.b - 1];
         face_vertices[2] = mesh.vertices[mesh_face.c - 1];
 
-        vec4_t transformed_vertices[3];
+        glm::vec4 transformed_vertices[3];
 
         // Loop all three vertices of this current face and apply transformations
         for (int j = 0; j < 3; j++) {
-            vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
+            glm::vec4 transformed_vertex(face_vertices[j], 1);
 
             // Create a World Matrix combining scale, rotation, and translation matrices
             world_matrix = mat4_identity();
@@ -216,26 +219,26 @@ void update()
         }
 
         // Get individual vectors from A, B, and C vertices to compute normal
-        vec3_t vector_a = vec3_from_vec4(transformed_vertices[0]); /*   A   */
-        vec3_t vector_b = vec3_from_vec4(transformed_vertices[1]); /*  / \  */
-        vec3_t vector_c = vec3_from_vec4(transformed_vertices[2]); /* C---B */
+        glm::vec3 vector_a(transformed_vertices[0]); /*   A   */
+        glm::vec3 vector_b(transformed_vertices[1]); /*  / \  */
+        glm::vec3 vector_c(transformed_vertices[2]); /* C---B */
 
         // Get the vector subtraction of B-A and C-A
-        vec3_t vector_ab = vec3_sub(vector_b, vector_a);
-        vec3_t vector_ac = vec3_sub(vector_c, vector_a);
-        vec3_normalize(&vector_ab);
-        vec3_normalize(&vector_ac);
+        glm::vec3 vector_ab = vector_b - vector_a;
+        glm::vec3 vector_ac = vector_c - vector_a;
+        vector_ab = glm::normalize(vector_ab);
+        vector_ac = glm::normalize(vector_ac);
 
         // Compute the face normal (using cross product to find perpendicular)
-        vec3_t normal = vec3_cross(vector_ab, vector_ac);
-        vec3_normalize(&normal);
+        glm::vec3 normal = glm::cross(vector_ab, vector_ac);
+        normal = glm::normalize(normal);
 
         // Find the vector between vertex A in the triangle and the camera origin
-        vec3_t origin = { 0, 0, 0 };
-        vec3_t camera_ray = vec3_sub(origin, vector_a);
+        glm::vec3 origin = { 0, 0, 0 };
+        glm::vec3 camera_ray = origin - vector_a;
 
         // Calculate how aligned the camera ray is with the face normal (using dot product)
-        float dot_normal_camera = vec3_dot(normal, camera_ray);
+        float dot_normal_camera = glm::dot(normal, camera_ray);
 
         // Backface culling test to see if the current face should be projected
         if (fb->should_cull_backface()) {
@@ -247,9 +250,9 @@ void update()
 
         // Create a polygon from the original transformed triangle to be clipped
         polygon_t polygon = polygon_from_triangle(
-            vec3_from_vec4(transformed_vertices[0]),
-            vec3_from_vec4(transformed_vertices[1]),
-            vec3_from_vec4(transformed_vertices[2]),
+            glm::vec3(transformed_vertices[0]),
+            glm::vec3(transformed_vertices[1]),
+            glm::vec3(transformed_vertices[2]),
             mesh_face.a_uv,
             mesh_face.b_uv,
             mesh_face.c_uv);
@@ -267,7 +270,7 @@ void update()
         for (int t = 0; t < num_triangles_after_clipping; t++) {
             triangle_t triangle_after_clipping = triangles_after_clipping[t];
 
-            vec4_t projected_points[3];
+            glm::vec4 projected_points[3];
 
             // Loop all three vertices to perform projection and conversion to screen space
             for (int j = 0; j < 3; j++) {
@@ -294,7 +297,7 @@ void update()
             }
 
             // Calculate the shade intensity based on how aliged is the normal with the flipped light direction ray
-            float light_intensity_factor = -vec3_dot(normal, get_light_direction());
+            float light_intensity_factor = -glm::dot(normal, get_light_direction());
 
             // Calculate the triangle color based on the light angle
             uint32_t triangle_color = apply_light_intensity(mesh_face.color, light_intensity_factor);

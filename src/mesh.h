@@ -2,7 +2,7 @@
 #define MESH_H
 
 #include "triangle.h"
-#include "vector.h"
+#include <glm/vec3.hpp>
 
 #define MAX_TEX_TRIS 512
 #define MAX_UNTEX_TRIS 64
@@ -17,13 +17,13 @@
 
 // Define a struct for dynamic size meshes, with array of vertices and faces
 typedef struct {
-    vec3_t vertices[MAX_VERTS];
+    glm::vec3 vertices[MAX_VERTS];
     uint32_t num_vertices;
     face_t faces[MAX_TRIS];
     uint32_t num_faces;
-    vec3_t rotation;    // rotation with x, y, and z values
-    vec3_t scale;       // scale with x, y, and z values
-    vec3_t translation; // translation with x, y, and z values
+    glm::vec3 rotation;    // rotation with x, y, and z values
+    glm::vec3 scale;       // scale with x, y, and z values
+    glm::vec3 translation; // translation with x, y, and z values
 } mesh_t;
 
 

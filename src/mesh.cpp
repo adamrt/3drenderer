@@ -14,7 +14,7 @@ void load_obj_file_data(mesh_t* mesh, std::string filename)
     while (fgets(line, 1024, file)) {
         // Vertex information
         if (strncmp(line, "v ", 2) == 0) {
-            vec3_t vertex;
+            glm::vec3 vertex;
             sscanf(line, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);
             mesh->vertices[mesh->num_vertices++] = vertex;
         }
