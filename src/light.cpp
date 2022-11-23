@@ -1,19 +1,9 @@
 #include "light.h"
 
-static light_t light;
-
-void init_light(glm::vec3 direction)
+uint32_t Light::calculate_light_color(uint32_t original_color, glm::vec3 normal)
 {
-    light.direction = direction;
-}
+    auto factor = intensity_factor(normal);
 
-glm::vec3 get_light_direction(void)
-{
-    return light.direction;
-}
-
-uint32_t apply_light_intensity(uint32_t original_color, float factor)
-{
     if (factor < 0)
         factor = 0;
     if (factor > 1)
@@ -27,4 +17,9 @@ uint32_t apply_light_intensity(uint32_t original_color, float factor)
     uint32_t new_color = a | (r & 0x00FF0000) | (g & 0x0000FF00) | (b & 0x000000FF);
 
     return new_color;
+}
+
+float Light::intensity_factor(glm::vec3 normal)
+{
+    return -glm::dot(normal, direction);
 }

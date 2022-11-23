@@ -47,12 +47,13 @@ mesh_t mesh = {
 
 Window* window;
 Framebuffer* fb;
+Light* light;
 
 // Setup function to initialize variables and game objects
 void setup()
 {
     // Initialize the scene light direction
-    init_light(glm::vec3(0, 0, 1));
+    light = new Light(glm::vec3(0, 0, 1));
 
     // Initialize the perspective projection matrix
     float aspect_y = (float)window->get_height() / (float)window->get_width();
@@ -296,11 +297,8 @@ void update()
                 projected_points[j].y += (window->get_height() / 2.0);
             }
 
-            // Calculate the shade intensity based on how aliged is the normal with the flipped light direction ray
-            float light_intensity_factor = -glm::dot(normal, get_light_direction());
-
             // Calculate the triangle color based on the light angle
-            uint32_t triangle_color = apply_light_intensity(mesh_face.color, light_intensity_factor);
+            uint32_t triangle_color = light->calculate_light_color(mesh_face.color, normal);
 
             // Create the final projected triangle that will be rendered in screen space
             triangle_t triangle_to_render = {

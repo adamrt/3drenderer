@@ -1,16 +1,20 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
+#include <glm/glm.hpp>
+#include <glm/vec3.hpp>
 #include <stdint.h>
 
-#include <glm/vec3.hpp>
-
-typedef struct {
+class Light {
+public:
+    Light(glm::vec3 direction)
+        : direction(direction) {};
     glm::vec3 direction;
-} light_t;
 
-void init_light(glm::vec3 direction);
-glm::vec3 get_light_direction(void);
-uint32_t apply_light_intensity(uint32_t original_color, float percentage_factor);
+    uint32_t calculate_light_color(uint32_t original_color, glm::vec3 normal);
+
+private:
+    float intensity_factor(glm::vec3 normal);
+};
 
 #endif
