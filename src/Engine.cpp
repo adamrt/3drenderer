@@ -133,6 +133,16 @@ void Engine::process_input()
 // Update function frame by frame with a fixed time step
 void Engine::update()
 {
+    int now = SDL_GetTicks();
+    // count fps in 1 sec (1000 ms)
+    if (now > fps_timer + 1000) {
+        std::string title = std::to_string(fps);
+        title.append(" FPS");
+        m_window->set_title(title);
+        fps_timer = now;
+        fps = 0;
+    }
+
     // Wait some time until the reach the target frame time in milliseconds
     int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - previous_frame_time);
 
@@ -304,6 +314,7 @@ void Engine::update()
             }
         }
     }
+    fps++;
 }
 
 // Render function to draw objects on the display

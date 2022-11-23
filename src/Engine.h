@@ -13,6 +13,8 @@ struct Engine {
     void render();
 
     bool is_running = true;
+    int fps = 0;
+    int fps_timer = 0;
 
     Window* m_window;
     Framebuffer* m_fb;
