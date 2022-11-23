@@ -1,4 +1,4 @@
-#include "light.h"
+#include "Light.h"
 
 uint32_t Light::calculate_light_color(uint32_t original_color, glm::vec3 normal)
 {

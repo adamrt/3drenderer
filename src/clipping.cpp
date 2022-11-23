@@ -72,7 +72,7 @@ polygon_t polygon_from_triangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, glm::v
     return polygon;
 }
 
-void triangles_from_polygon(polygon_t* polygon, triangle_t triangles[], int* num_triangles)
+void triangles_from_polygon(polygon_t* polygon, Triangle triangles[], int* num_triangles)
 {
     for (int i = 0; i < polygon->num_vertices - 2; i++) {
         int index0 = 0;
@@ -83,9 +83,9 @@ void triangles_from_polygon(polygon_t* polygon, triangle_t triangles[], int* num
         triangles[i].points[1] = glm::vec4(polygon->vertices[index1], 1);
         triangles[i].points[2] = glm::vec4(polygon->vertices[index2], 1);
 
-        triangles[i].texcoords[0] = polygon->texcoords[index0];
-        triangles[i].texcoords[1] = polygon->texcoords[index1];
-        triangles[i].texcoords[2] = polygon->texcoords[index2];
+        triangles[i].uvs[0] = polygon->texcoords[index0];
+        triangles[i].uvs[1] = polygon->texcoords[index1];
+        triangles[i].uvs[2] = polygon->texcoords[index2];
     }
     *num_triangles = polygon->num_vertices - 2;
 }

@@ -3,23 +3,24 @@
 #include <cstdint>
 
 #include "Framebuffer.h"
-#include "texture.h"
 
-#define FPS 60
-#define FRAME_TARGET_TIME (1000 / FPS)
+constexpr int FPS = 30;
+constexpr int FRAME_TARGET_TIME = (1000 / FPS);
 
 class Window {
 public:
-    Window();
+    Window(Framebuffer* fb, int width, int height);
     ~Window();
 
+    void render();
+
     void set_title(std::string title);
-    void update(Framebuffer* framebuffer);
 
     int get_width() { return m_width; }
     int get_height() { return m_height; }
 
 private:
+    Framebuffer* m_fb;
     int m_width;
     int m_height;
 

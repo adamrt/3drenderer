@@ -8,11 +8,11 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
+#include "Camera.h"
 #include "Framebuffer.h"
+#include "Light.h"
 #include "Window.h"
-#include "camera.h"
 #include "clipping.h"
-#include "light.h"
 #include "matrix.h"
 #include "mesh.h"
 #include "texture.h"
@@ -26,7 +26,7 @@ float delta_time = 0;
 
 // Array to store triangles that should be rendered each frame
 #define MAX_TRIANGLES 10000
-triangle_t triangles_to_render[MAX_TRIANGLES];
+Triangle triangles_to_render[MAX_TRIANGLES];
 int num_triangles_to_render = 0;
 
 // Declaration of our global transformation matrices
@@ -36,10 +36,7 @@ mat4_t view_matrix;
 
 uint32_t* mesh_texture;
 mesh_t mesh = {
-    .vertices = { {} },
-    .num_vertices = 0,
     .faces = { {} },
-    .num_faces = 0,
     .rotation = { 0, 0, 0 },
     .scale = { 1.0, 1.0, 1.0 },
     .translation = { 0, 0, 0 }
@@ -54,8 +51,8 @@ Camera* camera;
 void setup()
 {
     // Initialize the scene light direction
-    window = new Window();
-    fb = new Framebuffer(window->get_width(), window->get_height());
+    fb = new Framebuffer(1024, 768);
+    window = new Window(fb, 1024, 768);
     light = new Light(glm::vec3(0, 0, 1));
     camera = new Camera(glm::vec3(0, 0, -1), glm::vec3(0, 0, 0));
 
@@ -190,13 +187,13 @@ void update()
     view_matrix = mat4_look_at(camera->position, target, up_direction);
 
     // Loop all triangle faces of our mesh
-    for (uint32_t i = 0; i < mesh.num_faces; i++) {
-        face_t mesh_face = mesh.faces[i];
+    for (uint32_t i = 0; i < mesh.faces.size(); i++) {
+        Face mesh_face = mesh.faces[i];
 
         glm::vec3 face_vertices[3];
-        face_vertices[0] = mesh.vertices[mesh_face.a - 1];
-        face_vertices[1] = mesh.vertices[mesh_face.b - 1];
-        face_vertices[2] = mesh.vertices[mesh_face.c - 1];
+        face_vertices[0] = mesh_face.a.point;
+        face_vertices[1] = mesh_face.b.point;
+        face_vertices[2] = mesh_face.c.point;
 
         glm::vec4 transformed_vertices[3];
 
@@ -259,22 +256,22 @@ void update()
             glm::vec3(transformed_vertices[0]),
             glm::vec3(transformed_vertices[1]),
             glm::vec3(transformed_vertices[2]),
-            mesh_face.a_uv,
-            mesh_face.b_uv,
-            mesh_face.c_uv);
+            mesh_face.a.uv,
+            mesh_face.b.uv,
+            mesh_face.c.uv);
 
         // Clip the polygon and returns a new polygon with potential new vertices
         clip_polygon(&polygon);
 
         // Break the clipped polygon apart back into individual triangles
-        triangle_t triangles_after_clipping[MAX_NUM_POLY_TRIANGLES];
+        Triangle triangles_after_clipping[MAX_NUM_POLY_TRIANGLES];
         int num_triangles_after_clipping = 0;
 
         triangles_from_polygon(&polygon, triangles_after_clipping, &num_triangles_after_clipping);
 
         // Loops all the assembled triangles after clipping
         for (int t = 0; t < num_triangles_after_clipping; t++) {
-            triangle_t triangle_after_clipping = triangles_after_clipping[t];
+            Triangle triangle_after_clipping = triangles_after_clipping[t];
 
             glm::vec4 projected_points[3];
 
@@ -306,16 +303,16 @@ void update()
             uint32_t triangle_color = light->calculate_light_color(mesh_face.color, normal);
 
             // Create the final projected triangle that will be rendered in screen space
-            triangle_t triangle_to_render = {
+            Triangle triangle_to_render = {
                 .points = {
                     { projected_points[0].x, projected_points[0].y, projected_points[0].z, projected_points[0].w },
                     { projected_points[1].x, projected_points[1].y, projected_points[1].z, projected_points[1].w },
                     { projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w },
                 },
-                .texcoords = {
-                    { triangle_after_clipping.texcoords[0].x, triangle_after_clipping.texcoords[0].y },
-                    { triangle_after_clipping.texcoords[1].x, triangle_after_clipping.texcoords[1].y },
-                    { triangle_after_clipping.texcoords[2].x, triangle_after_clipping.texcoords[2].y },
+                .uvs = {
+                    { triangle_after_clipping.uvs[0].x, triangle_after_clipping.uvs[0].y },
+                    { triangle_after_clipping.uvs[1].x, triangle_after_clipping.uvs[1].y },
+                    { triangle_after_clipping.uvs[2].x, triangle_after_clipping.uvs[2].y },
                 },
                 .color = triangle_color
             };
@@ -339,7 +336,7 @@ void render()
 
     // Loop all projected triangles and render them
     for (int i = 0; i < num_triangles_to_render; i++) {
-        triangle_t triangle = triangles_to_render[i];
+        Triangle triangle = triangles_to_render[i];
 
         // Draw filled triangle
         if (fb->should_render_filled_triangle()) {
@@ -353,9 +350,9 @@ void render()
         // Draw textured triangle
         if (fb->should_render_textured_triangle()) {
             fb->draw_textured_triangle(
-                triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, triangle.texcoords[0].x, triangle.texcoords[0].y, // vertex A
-                triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, triangle.texcoords[1].x, triangle.texcoords[1].y, // vertex B
-                triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, triangle.texcoords[2].x, triangle.texcoords[2].y, // vertex C
+                triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, triangle.uvs[0].x, triangle.uvs[0].y, // vertex A
+                triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, triangle.uvs[1].x, triangle.uvs[1].y, // vertex B
+                triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, triangle.uvs[2].x, triangle.uvs[2].y, // vertex C
                 mesh_texture);
         }
 
@@ -377,7 +374,7 @@ void render()
     }
 
     // Finally draw the color buffer to the SDL window
-    window->update(fb);
+    window->render();
 }
 
 int main()

@@ -16,10 +16,10 @@ add_compile_options(-pedantic )
 
 add_executable(renderer
   src/main.cpp
-  src/camera.cpp
+  src/Camera.cpp
   src/clipping.cpp
   src/Framebuffer.cpp
-  src/light.cpp
+  src/Light.cpp
   src/matrix.cpp
   src/mesh.cpp
   src/Window.cpp

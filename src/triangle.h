@@ -1,24 +1,27 @@
 #ifndef TRIANGLE_H
 #define TRIANGLE_H
 
-#include "texture.h"
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <stdint.h>
 
-typedef struct {
-    int a;
-    int b;
-    int c;
-    glm::vec2 a_uv;
-    glm::vec2 b_uv;
-    glm::vec2 c_uv;
-    uint32_t color;
-} face_t;
+#include "texture.h"
 
-typedef struct {
-    glm::vec4 points[3];
-    glm::vec2 texcoords[3];
+struct Vertex {
+    glm::vec3 point;
+    glm::vec2 uv;
+};
+
+struct Face {
+    Vertex a, b, c;
     uint32_t color;
-} triangle_t;
+};
+
+struct Triangle {
+    glm::vec4 points[3];
+    glm::vec2 uvs[3];
+    uint32_t color;
+};
 
 #endif
