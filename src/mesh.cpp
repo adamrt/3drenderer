@@ -1,6 +1,8 @@
-#include "mesh.h"
 #include <stdio.h>
 #include <string.h>
+#include <glm/vec2.hpp>
+
+#include "mesh.h"
 
 void load_obj_file_data(mesh_t* mesh, std::string filename)
 {
@@ -9,7 +11,7 @@ void load_obj_file_data(mesh_t* mesh, std::string filename)
     char line[1024];
 
     uint32_t num_texcoords = 0;
-    tex2_t texcoords[1024];
+    glm::vec2 texcoords[1024];
 
     while (fgets(line, 1024, file)) {
         // Vertex information
@@ -20,8 +22,8 @@ void load_obj_file_data(mesh_t* mesh, std::string filename)
         }
         // Texture coordinate information
         if (strncmp(line, "vt ", 3) == 0) {
-            tex2_t texcoord;
-            sscanf(line, "vt %f %f", &texcoord.u, &texcoord.v);
+            glm::vec2 texcoord;
+            sscanf(line, "vt %f %f", &texcoord.x, &texcoord.y);
             texcoords[num_texcoords++] = texcoord;
         }
         // Face information

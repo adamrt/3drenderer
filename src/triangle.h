@@ -9,15 +9,15 @@ typedef struct {
     int a;
     int b;
     int c;
-    tex2_t a_uv;
-    tex2_t b_uv;
-    tex2_t c_uv;
+    glm::vec2 a_uv;
+    glm::vec2 b_uv;
+    glm::vec2 c_uv;
     uint32_t color;
 } face_t;
 
 typedef struct {
     glm::vec4 points[3];
-    tex2_t texcoords[3];
+    glm::vec2 texcoords[3];
     uint32_t color;
 } triangle_t;
 

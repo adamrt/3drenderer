@@ -141,7 +141,7 @@ void Framebuffer::draw_triangle_pixel(
 void Framebuffer::draw_triangle_texel(
     int x, int y, uint32_t* texture,
     glm::vec4 point_a, glm::vec4 point_b, glm::vec4 point_c,
-    tex2_t a_uv, tex2_t b_uv, tex2_t c_uv)
+    glm::vec2 a_uv, glm::vec2 b_uv, glm::vec2 c_uv)
 {
     glm::vec2 p = { (float)x, (float)y };
     glm::vec2 a = point_a;
@@ -161,8 +161,8 @@ void Framebuffer::draw_triangle_texel(
     float interpolated_reciprocal_w;
 
     // Perform the interpolation of all U/w and V/w values using barycentric weights and a factor of 1/w
-    interpolated_u = (a_uv.u / point_a.w) * alpha + (b_uv.u / point_b.w) * beta + (c_uv.u / point_c.w) * gamma;
-    interpolated_v = (a_uv.v / point_a.w) * alpha + (b_uv.v / point_b.w) * beta + (c_uv.v / point_c.w) * gamma;
+    interpolated_u = (a_uv.x / point_a.w) * alpha + (b_uv.x / point_b.w) * beta + (c_uv.x / point_c.w) * gamma;
+    interpolated_v = (a_uv.y / point_a.w) * alpha + (b_uv.y / point_b.w) * beta + (c_uv.y / point_c.w) * gamma;
 
     // Also interpolate the value of 1/w for the current pixel
     interpolated_reciprocal_w = (1 / point_a.w) * alpha + (1 / point_b.w) * beta + (1 / point_c.w) * gamma;
@@ -246,9 +246,9 @@ void Framebuffer::draw_textured_triangle(
     glm::vec4 point_a = { (float)x0, (float)y0, z0, w0 };
     glm::vec4 point_b = { (float)x1, (float)y1, z1, w1 };
     glm::vec4 point_c = { (float)x2, (float)y2, z2, w2 };
-    tex2_t a_uv = { u0, v0 };
-    tex2_t b_uv = { u1, v1 };
-    tex2_t c_uv = { u2, v2 };
+    glm::vec2 a_uv = { u0, v0 };
+    glm::vec2 b_uv = { u1, v1 };
+    glm::vec2 c_uv = { u2, v2 };
 
     // Render the upper part of the triangle (flat-bottom)
     float inv_slope_1 = 0;

@@ -308,9 +308,9 @@ void update()
                     { projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w },
                 },
                 .texcoords = {
-                    { triangle_after_clipping.texcoords[0].u, triangle_after_clipping.texcoords[0].v },
-                    { triangle_after_clipping.texcoords[1].u, triangle_after_clipping.texcoords[1].v },
-                    { triangle_after_clipping.texcoords[2].u, triangle_after_clipping.texcoords[2].v },
+                    { triangle_after_clipping.texcoords[0].x, triangle_after_clipping.texcoords[0].y },
+                    { triangle_after_clipping.texcoords[1].x, triangle_after_clipping.texcoords[1].y },
+                    { triangle_after_clipping.texcoords[2].x, triangle_after_clipping.texcoords[2].y },
                 },
                 .color = triangle_color
             };
@@ -348,9 +348,9 @@ void render()
         // Draw textured triangle
         if (fb->should_render_textured_triangle()) {
             fb->draw_textured_triangle(
-                triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, triangle.texcoords[0].u, triangle.texcoords[0].v, // vertex A
-                triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, triangle.texcoords[1].u, triangle.texcoords[1].v, // vertex B
-                triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, triangle.texcoords[2].u, triangle.texcoords[2].v, // vertex C
+                triangle.points[0].x, triangle.points[0].y, triangle.points[0].z, triangle.points[0].w, triangle.texcoords[0].x, triangle.texcoords[0].y, // vertex A
+                triangle.points[1].x, triangle.points[1].y, triangle.points[1].z, triangle.points[1].w, triangle.texcoords[1].x, triangle.texcoords[1].y, // vertex B
+                triangle.points[2].x, triangle.points[2].y, triangle.points[2].z, triangle.points[2].w, triangle.texcoords[2].x, triangle.texcoords[2].y, // vertex C
                 mesh_texture);
         }
 
