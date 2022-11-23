@@ -48,12 +48,16 @@ mesh_t mesh = {
 Window* window;
 Framebuffer* fb;
 Light* light;
+Camera* camera;
 
 // Setup function to initialize variables and game objects
 void setup()
 {
     // Initialize the scene light direction
+    window = new Window();
+    fb = new Framebuffer(window->get_width(), window->get_height());
     light = new Light(glm::vec3(0, 0, 1));
+    camera = new Camera(glm::vec3(0, 0, -1), glm::vec3(0, 0, 0));
 
     // Initialize the perspective projection matrix
     float aspect_y = (float)window->get_height() / (float)window->get_width();
@@ -77,6 +81,9 @@ void setup()
 // Poll system events and handle keyboard input
 void process_input()
 {
+
+    float sensitivity = 10.0;
+
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
@@ -121,25 +128,23 @@ void process_input()
                 break;
             }
             if (event.key.keysym.sym == SDLK_w) {
-                camera_set_velocity(camera_get_direction() * (float)10.0 * delta_time);
-                camera_set_position(camera_get_position() + camera_get_velocity());
+                auto velocity = camera->direction * sensitivity * delta_time;
+                camera->position = camera->position + velocity;
                 break;
             }
             if (event.key.keysym.sym == SDLK_s) {
-                camera_set_velocity(camera_get_direction() * (float)10.0 * delta_time);
-                camera_set_position(camera_get_position() - camera_get_velocity());
+                auto velocity = camera->direction * sensitivity * delta_time;
+                camera->position = camera->position - velocity;
                 break;
             }
             if (event.key.keysym.sym == SDLK_a) {
-                camera_set_velocity(glm::vec3(-1.0, 0, 0) * (float)10.0 * delta_time);
-                camera_set_position(camera_get_position() + camera_get_velocity());
-
+                auto velocity = glm::vec3(-1.0, 0, 0) * sensitivity * delta_time;
+                camera->position = camera->position + velocity;
                 break;
             }
             if (event.key.keysym.sym == SDLK_d) {
-                camera_set_velocity(glm::vec3(1.0, 0, 0) * (float)10.0 * delta_time);
-                camera_set_position(camera_get_position() + camera_get_velocity());
-
+                auto velocity = glm::vec3(1.0, 0, 0) * sensitivity * delta_time;
+                camera->position = camera->position + velocity;
                 break;
             }
             break;
@@ -180,9 +185,9 @@ void update()
     mat4_t rotation_matrix_z = mat4_make_rotation_z(mesh.rotation.z);
 
     // Update camera look at target to create view matrix
-    glm::vec3 target = camera_get_lookat();
+    glm::vec3 target = camera->get_look_at();
     glm::vec3 up_direction = glm::vec3(0, 1, 0);
-    view_matrix = mat4_look_at(camera_get_position(), target, up_direction);
+    view_matrix = mat4_look_at(camera->position, target, up_direction);
 
     // Loop all triangle faces of our mesh
     for (uint32_t i = 0; i < mesh.num_faces; i++) {
@@ -377,8 +382,6 @@ void render()
 
 int main()
 {
-    window = new Window();
-    fb = new Framebuffer(window->get_width(), window->get_height());
     is_running = true;
 
     setup();
