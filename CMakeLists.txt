@@ -21,7 +21,6 @@ add_executable(renderer
   src/Engine.cpp
   src/Framebuffer.cpp
   src/Light.cpp
-  src/matrix.cpp
   src/mesh.cpp
   src/Window.cpp
   src/texture.cpp

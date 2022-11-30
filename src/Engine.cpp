@@ -1,7 +1,9 @@
 #include "Engine.h"
 #include "clipping.h"
-#include "matrix.h"
 #include "mesh.h"
+
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 // Array to store triangles that should be rendered each frame
 #define MAX_TRIANGLES 10000
@@ -17,9 +19,7 @@ mesh_t mesh = {
 };
 
 // Declaration of our global transformation matrices
-mat4_t world_matrix;
-mat4_t proj_matrix;
-mat4_t view_matrix;
+glm::mat4 proj_matrix;
 
 Engine::Engine(int width, int height)
 {
@@ -39,9 +39,9 @@ void Engine::setup()
     float aspect_x = (float)m_window->get_width() / (float)m_window->get_height();
     float fov_y = 3.141592 / 3.0; // the same as 180/3, or 60deg
     float fov_x = atan(tan(fov_y / 2) * aspect_x) * 2;
-    float znear = 1.0;
-    float zfar = 20.0;
-    proj_matrix = mat4_make_perspective(fov_y, aspect_y, znear, zfar);
+    float znear = 0.1;
+    float zfar = 10.0;
+    proj_matrix = glm::perspectiveLH(fov_y, aspect_y, znear, zfar);
 
     // Initialize frustum planes with a point and a normal
     init_frustum_planes(fov_x, fov_y, znear, zfar);
@@ -156,14 +156,15 @@ void Engine::update()
     mesh.translation.z = 5.0;
 
     // Create scale, rotation, and translation matrices that will be used to multiply the mesh vertices
-    mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
-    mat4_t translation_matrix = mat4_make_translation(mesh.translation.x, mesh.translation.y, mesh.translation.z);
-    mat4_t rotation_matrix_x = mat4_make_rotation_x(mesh.rotation.x);
-    mat4_t rotation_matrix_y = mat4_make_rotation_y(mesh.rotation.y);
-    mat4_t rotation_matrix_z = mat4_make_rotation_z(mesh.rotation.z);
+    auto world_matrix = glm::mat4(1.0);
+    world_matrix = glm::scale(world_matrix, mesh.scale);
+    world_matrix = glm::translate(world_matrix, mesh.translation);
+    world_matrix = glm::rotate(world_matrix, mesh.rotation.x, glm::vec3(1, 0, 0));
+    world_matrix = glm::rotate(world_matrix, mesh.rotation.y, glm::vec3(0, 1, 0));
+    world_matrix = glm::rotate(world_matrix, mesh.rotation.z, glm::vec3(0, 0, 1));
 
     // Update camera look at target to create view matrix
-    view_matrix = mat4_look_at(m_camera->m_position, m_camera->get_look_at(), m_camera->m_up);
+    auto view_matrix = glm::lookAtLH(m_camera->m_position, glm::vec3(0, 0, 0), m_camera->m_up);
 
     // Loop all triangle faces of our mesh
     for (uint32_t i = 0; i < mesh.faces.size(); i++) {
@@ -180,21 +181,11 @@ void Engine::update()
         for (int j = 0; j < 3; j++) {
             glm::vec4 transformed_vertex(face_vertices[j], 1);
 
-            // Create a World Matrix combining scale, rotation, and translation matrices
-            world_matrix = mat4_identity();
-
-            // Order matters: First scale, then rotate, then translate. [T]*[R]*[S]*v
-            world_matrix = mat4_mul_mat4(scale_matrix, world_matrix);
-            world_matrix = mat4_mul_mat4(rotation_matrix_z, world_matrix);
-            world_matrix = mat4_mul_mat4(rotation_matrix_y, world_matrix);
-            world_matrix = mat4_mul_mat4(rotation_matrix_x, world_matrix);
-            world_matrix = mat4_mul_mat4(translation_matrix, world_matrix);
-
             // Multiply the world matrix by the original vector
-            transformed_vertex = mat4_mul_vec4(world_matrix, transformed_vertex);
+            transformed_vertex = world_matrix * transformed_vertex;
 
             // Multiply the view matrix by the vector to transform the scene to camera space
-            transformed_vertex = mat4_mul_vec4(view_matrix, transformed_vertex);
+            transformed_vertex = view_matrix * transformed_vertex;
 
             // Save transformed vertex in the array of transformed vertices
             transformed_vertices[j] = transformed_vertex;
@@ -257,7 +248,7 @@ void Engine::update()
             // Loop all three vertices to perform projection and conversion to screen space
             for (int j = 0; j < 3; j++) {
                 // Project the current vertex using a perspective projection matrix
-                projected_points[j] = mat4_mul_vec4(proj_matrix, triangle_after_clipping.points[j]);
+                projected_points[j] = proj_matrix * triangle_after_clipping.points[j];
 
                 // Perform perspective divide
                 if (projected_points[j].w != 0) {
