@@ -3,6 +3,7 @@
 #include "matrix.h"
 #include "mesh.h"
 
+
 // Array to store triangles that should be rendered each frame
 #define MAX_TRIANGLES 10000
 Triangle triangles_to_render[MAX_TRIANGLES];
@@ -64,6 +65,13 @@ void Engine::process_input()
         switch (event.type) {
         case SDL_QUIT:
             m_is_running = false;
+            break;
+        case SDL_MOUSEWHEEL:
+            if (event.wheel.preciseY > 0) {
+                mesh.scale = mesh.scale * (float)1.1;
+            } else {
+                mesh.scale = mesh.scale / (float)1.1;
+            }
             break;
         case SDL_KEYDOWN:
             if (event.key.keysym.sym == SDLK_ESCAPE) {
