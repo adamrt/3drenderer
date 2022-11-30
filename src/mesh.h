@@ -1,5 +1,4 @@
-#ifndef MESH_H
-#define MESH_H
+#pragma once
 
 #include <glm/vec3.hpp>
 #include <vector>
@@ -26,5 +25,3 @@ typedef struct {
 } mesh_t;
 
 void load_obj_file_data(mesh_t* mesh, std::string filename);
-
-#endif

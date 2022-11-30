@@ -1,5 +1,4 @@
-#ifndef CAMERA_H
-#define CAMERA_H
+#pragma once
 
 #include <glm/vec3.hpp>
 
@@ -11,5 +10,3 @@ public:
     glm::vec3 direction;
     glm::vec3 get_look_at(void);
 };
-
-#endif

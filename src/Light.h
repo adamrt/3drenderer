@@ -1,5 +1,4 @@
-#ifndef LIGHT_H
-#define LIGHT_H
+#pragma once
 
 #include <glm/glm.hpp>
 #include <glm/vec3.hpp>
@@ -16,5 +15,3 @@ public:
 private:
     float intensity_factor(glm::vec3 normal);
 };
-
-#endif

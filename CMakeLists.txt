@@ -12,7 +12,7 @@ set(CMAKE_BUILD_TYPE Debug)
 add_compile_options(-Wall)
 add_compile_options(-Wextra)
 add_compile_options(-Werror)
-add_compile_options(-pedantic )
+add_compile_options(-pedantic)
 
 add_executable(renderer
   src/main.cpp

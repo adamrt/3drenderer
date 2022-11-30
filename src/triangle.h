@@ -1,5 +1,4 @@
-#ifndef TRIANGLE_H
-#define TRIANGLE_H
+#pragma once
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -23,5 +22,3 @@ struct Triangle {
     glm::vec2 uvs[3];
     uint32_t color;
 };
-
-#endif
