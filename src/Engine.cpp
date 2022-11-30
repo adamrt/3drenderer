@@ -155,8 +155,10 @@ void Engine::update()
     mesh.rotation.z += 0.0 * m_delta;
     mesh.translation.z = 5.0;
 
+    auto view_matrix = glm::lookAtLH(m_camera->m_position, glm::vec3(0, 0, 0), m_camera->m_up);
+
     // Create scale, rotation, and translation matrices that will be used to multiply the mesh vertices
-    auto world_matrix = glm::mat4(1.0);
+    auto world_matrix = glm::mat4(1.0) * view_matrix;
     world_matrix = glm::scale(world_matrix, mesh.scale);
     world_matrix = glm::translate(world_matrix, mesh.translation);
     world_matrix = glm::rotate(world_matrix, mesh.rotation.x, glm::vec3(1, 0, 0));
@@ -164,57 +166,27 @@ void Engine::update()
     world_matrix = glm::rotate(world_matrix, mesh.rotation.z, glm::vec3(0, 0, 1));
 
     // Update camera look at target to create view matrix
-    auto view_matrix = glm::lookAtLH(m_camera->m_position, glm::vec3(0, 0, 0), m_camera->m_up);
 
     // Loop all triangle faces of our mesh
-    for (uint32_t i = 0; i < mesh.faces.size(); i++) {
-        Face mesh_face = mesh.faces[i];
-
-        glm::vec3 face_vertices[3];
-        face_vertices[0] = mesh_face.a.point;
-        face_vertices[1] = mesh_face.b.point;
-        face_vertices[2] = mesh_face.c.point;
-
-        glm::vec4 transformed_vertices[3];
-
-        // Loop all three vertices of this current face and apply transformations
-        for (int j = 0; j < 3; j++) {
-            glm::vec4 transformed_vertex(face_vertices[j], 1);
-
-            // Multiply the world matrix by the original vector
-            transformed_vertex = world_matrix * transformed_vertex;
-
-            // Multiply the view matrix by the vector to transform the scene to camera space
-            transformed_vertex = view_matrix * transformed_vertex;
-
-            // Save transformed vertex in the array of transformed vertices
-            transformed_vertices[j] = transformed_vertex;
-        }
-
-        // Get individual vectors from A, B, and C vertices to compute normal
-        glm::vec3 vector_a(transformed_vertices[0]); /*   A   */
-        glm::vec3 vector_b(transformed_vertices[1]); /*  / \  */
-        glm::vec3 vector_c(transformed_vertices[2]); /* C---B */
+    for (auto& mesh_face : mesh.faces) {
+        auto vector_a = glm::vec3(world_matrix * glm::vec4(mesh_face.a.point, 1.0));
+        auto vector_b = glm::vec3(world_matrix * glm::vec4(mesh_face.b.point, 1.0));
+        auto vector_c = glm::vec3(world_matrix * glm::vec4(mesh_face.c.point, 1.0));
 
         // Get the vector subtraction of B-A and C-A
-        glm::vec3 vector_ab = vector_b - vector_a;
-        glm::vec3 vector_ac = vector_c - vector_a;
-        vector_ab = glm::normalize(vector_ab);
-        vector_ac = glm::normalize(vector_ac);
-
-        // Compute the face normal (using cross product to find perpendicular)
-        glm::vec3 normal = glm::cross(vector_ab, vector_ac);
-        normal = glm::normalize(normal);
-
-        // Find the vector between vertex A in the triangle and the camera origin
-        glm::vec3 origin = { 0, 0, 0 };
-        glm::vec3 camera_ray = origin - vector_a;
-
-        // Calculate how aligned the camera ray is with the face normal (using dot product)
-        float dot_normal_camera = glm::dot(normal, camera_ray);
+        glm::vec3 vector_ab = glm::normalize(vector_b - vector_a);
+        glm::vec3 vector_ac = glm::normalize(vector_c - vector_a);
+        glm::vec3 normal = glm::normalize(glm::cross(vector_ab, vector_ac));
 
         // Backface culling test to see if the current face should be projected
         if (m_fb->should_cull_backface()) {
+            // Find the vector between vertex A in the triangle and the camera origin
+            glm::vec3 origin = { 0, 0, 0 };
+            glm::vec3 camera_ray = origin - vector_a;
+
+            // Calculate how aligned the camera ray is with the face normal (using dot product)
+            float dot_normal_camera = glm::dot(normal, camera_ray);
+
             // Backface culling, bypassing triangles that are looking away from the camera
             if (dot_normal_camera < 0) {
                 continue;
@@ -222,14 +194,7 @@ void Engine::update()
         }
 
         // Create a polygon from the original transformed triangle to be clipped
-        polygon_t polygon = polygon_from_triangle(
-            glm::vec3(transformed_vertices[0]),
-            glm::vec3(transformed_vertices[1]),
-            glm::vec3(transformed_vertices[2]),
-            mesh_face.a.uv,
-            mesh_face.b.uv,
-            mesh_face.c.uv);
-
+        polygon_t polygon = polygon_from_triangle(vector_a, vector_b, vector_c, mesh_face.a.uv, mesh_face.b.uv, mesh_face.c.uv);
         // Clip the polygon and returns a new polygon with potential new vertices
         clip_polygon(&polygon);
 
