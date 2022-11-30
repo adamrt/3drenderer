@@ -3,7 +3,6 @@
 #include "matrix.h"
 #include "mesh.h"
 
-
 // Array to store triangles that should be rendered each frame
 #define MAX_TRIANGLES 10000
 Triangle triangles_to_render[MAX_TRIANGLES];
@@ -27,7 +26,7 @@ Engine::Engine(int width, int height)
     m_fb = new Framebuffer(width, height);
     m_window = new Window(m_fb, width, height);
     m_light = new Light(glm::vec3(0, 0, 1));
-    m_camera = new Camera(glm::vec3(0, 0, -1), glm::vec3(0, 0, 0));
+    m_camera = new Camera(glm::vec3(0, 0, -1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 };
 
 // Setup function to initialize variables and game objects
@@ -111,23 +110,23 @@ void Engine::process_input()
                 break;
             }
             if (event.key.keysym.sym == SDLK_w) {
-                auto velocity = m_camera->direction * sensitivity * m_delta;
-                m_camera->position = m_camera->position + velocity;
+                auto velocity = m_camera->m_direction * sensitivity * m_delta;
+                m_camera->m_position = m_camera->m_position + velocity;
                 break;
             }
             if (event.key.keysym.sym == SDLK_s) {
-                auto velocity = m_camera->direction * sensitivity * m_delta;
-                m_camera->position = m_camera->position - velocity;
+                auto velocity = m_camera->m_direction * sensitivity * m_delta;
+                m_camera->m_position = m_camera->m_position - velocity;
                 break;
             }
             if (event.key.keysym.sym == SDLK_a) {
                 auto velocity = glm::vec3(-1.0, 0, 0) * sensitivity * m_delta;
-                m_camera->position = m_camera->position + velocity;
+                m_camera->m_position = m_camera->m_position + velocity;
                 break;
             }
             if (event.key.keysym.sym == SDLK_d) {
                 auto velocity = glm::vec3(1.0, 0, 0) * sensitivity * m_delta;
-                m_camera->position = m_camera->position + velocity;
+                m_camera->m_position = m_camera->m_position + velocity;
                 break;
             }
             break;
@@ -164,9 +163,7 @@ void Engine::update()
     mat4_t rotation_matrix_z = mat4_make_rotation_z(mesh.rotation.z);
 
     // Update camera look at target to create view matrix
-    glm::vec3 target = m_camera->get_look_at();
-    glm::vec3 up_direction = glm::vec3(0, 1, 0);
-    view_matrix = mat4_look_at(m_camera->position, target, up_direction);
+    view_matrix = mat4_look_at(m_camera->m_position, m_camera->get_look_at(), m_camera->m_up);
 
     // Loop all triangle faces of our mesh
     for (uint32_t i = 0; i < mesh.faces.size(); i++) {
