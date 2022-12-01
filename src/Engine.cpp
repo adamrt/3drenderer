@@ -5,7 +5,6 @@
 #include "clipping.h"
 #include "mesh.h"
 
-
 std::vector<Triangle> triangles_to_render;
 
 uint32_t* mesh_texture;
@@ -144,8 +143,7 @@ void Engine::update()
     m_delta = (SDL_GetTicks() - m_previous) / 1000.0;
     m_previous = SDL_GetTicks();
 
-    // Initialize the counter of triangles to render for the current frame
-    num_triangles_to_render = 0;
+    triangles_to_render.clear();
 
     // Change the mesh scale, rotation, and translation values per animation frame
     mesh.rotation.x -= 0.2 * m_delta;
@@ -251,9 +249,7 @@ void Engine::update()
             };
 
             // Save the projected triangle in the array of triangles to render
-            if (num_triangles_to_render < MAX_TRIANGLES) {
-                triangles_to_render[num_triangles_to_render++] = triangle_to_render;
-            }
+            triangles_to_render.push_back(triangle_to_render);
         }
     }
 }
@@ -268,8 +264,7 @@ void Engine::render()
     m_fb->draw_grid();
 
     // Loop all projected triangles and render them
-    for (int i = 0; i < num_triangles_to_render; i++) {
-        Triangle triangle = triangles_to_render[i];
+    for (auto& triangle : triangles_to_render) {
 
         // Draw filled triangle
         if (m_fb->should_render_filled_triangle()) {
