@@ -189,20 +189,12 @@ void Engine::update()
             }
         }
 
-        // Create a polygon from the original transformed triangle to be clipped
-        polygon_t polygon = polygon_from_triangle(vector_a, vector_b, vector_c, mesh_face.a.uv, mesh_face.b.uv, mesh_face.c.uv);
-        // Clip the polygon and returns a new polygon with potential new vertices
-        clip_polygon(&polygon);
-
-        // Break the clipped polygon apart back into individual triangles
-        Triangle triangles_after_clipping[MAX_NUM_POLY_TRIANGLES];
-        int num_triangles_after_clipping = 0;
-
-        triangles_from_polygon(&polygon, triangles_after_clipping, &num_triangles_after_clipping);
+        Polygon polygon(vector_a, vector_b, vector_c, mesh_face.a.uv, mesh_face.b.uv, mesh_face.c.uv);
+        auto triangles = polygon.clipped_triangles();
 
         // Loops all the assembled triangles after clipping
-        for (int t = 0; t < num_triangles_after_clipping; t++) {
-            Triangle triangle_after_clipping = triangles_after_clipping[t];
+        for (size_t t = 0; t < triangles.size(); t++) {
+            Triangle triangle_after_clipping = triangles[t];
 
             glm::vec4 projected_points[3];
 

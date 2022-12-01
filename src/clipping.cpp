@@ -1,7 +1,14 @@
-#include <glm/glm.hpp> // vec3 normalize reflect dot pow
 #include <math.h>
+#include <vector>
+
+#include <glm/glm.hpp> // vec3 normalize reflect dot pow
 
 #include "clipping.h"
+
+static float float_lerp(float a, float b, float t)
+{
+    return a + t * (b - a);
+}
 
 #define NUM_PLANES 6
 plane_t frustum_planes[NUM_PLANES];
@@ -62,40 +69,40 @@ void init_frustum_planes(float fov_x, float fov_y, float znear, float zfar)
     frustum_planes[FAR_FRUSTUM_PLANE].normal.z = -1;
 }
 
-polygon_t polygon_from_triangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, glm::vec2 t0, glm::vec2 t1, glm::vec2 t2)
+std::vector<Triangle> Polygon::clipped_triangles()
 {
-    polygon_t polygon = {
-        .vertices = { v0, v1, v2 },
-        .texcoords = { t0, t1, t2 },
-        .num_vertices = 3
-    };
-    return polygon;
-}
+    clip();
 
-void triangles_from_polygon(polygon_t* polygon, Triangle triangles[], int* num_triangles)
-{
-    for (int i = 0; i < polygon->num_vertices - 2; i++) {
+    std::vector<Triangle> triangles;
+    for (int i = 0; i < num_vertices - 2; i++) {
+        Triangle triangle;
         int index0 = 0;
         int index1 = i + 1;
         int index2 = i + 2;
 
-        triangles[i].points[0] = glm::vec4(polygon->vertices[index0], 1);
-        triangles[i].points[1] = glm::vec4(polygon->vertices[index1], 1);
-        triangles[i].points[2] = glm::vec4(polygon->vertices[index2], 1);
+        triangle.points[0] = glm::vec4(vertices[index0], 1);
+        triangle.points[1] = glm::vec4(vertices[index1], 1);
+        triangle.points[2] = glm::vec4(vertices[index2], 1);
 
-        triangles[i].uvs[0] = polygon->texcoords[index0];
-        triangles[i].uvs[1] = polygon->texcoords[index1];
-        triangles[i].uvs[2] = polygon->texcoords[index2];
+        triangle.uvs[0] = texcoords[index0];
+        triangle.uvs[1] = texcoords[index1];
+        triangle.uvs[2] = texcoords[index2];
+        triangles.push_back(triangle);
     }
-    *num_triangles = polygon->num_vertices - 2;
+    return triangles;
 }
 
-float float_lerp(float a, float b, float t)
+void Polygon::clip()
 {
-    return a + t * (b - a);
+    clip_against_plane(LEFT_FRUSTUM_PLANE);
+    clip_against_plane(RIGHT_FRUSTUM_PLANE);
+    clip_against_plane(TOP_FRUSTUM_PLANE);
+    clip_against_plane(BOTTOM_FRUSTUM_PLANE);
+    clip_against_plane(NEAR_FRUSTUM_PLANE);
+    clip_against_plane(FAR_FRUSTUM_PLANE);
 }
 
-void clip_polygon_against_plane(polygon_t* polygon, int plane)
+void Polygon::clip_against_plane(int plane)
 {
     glm::vec3 plane_point = frustum_planes[plane].point;
     glm::vec3 plane_normal = frustum_planes[plane].normal;
@@ -106,19 +113,19 @@ void clip_polygon_against_plane(polygon_t* polygon, int plane)
     int num_inside_vertices = 0;
 
     // Start the current vertex with the first polygon vertex and texture coordinate
-    glm::vec3* current_vertex = &polygon->vertices[0];
-    glm::vec2* current_texcoord = &polygon->texcoords[0];
+    glm::vec3* current_vertex = &vertices[0];
+    glm::vec2* current_texcoord = &texcoords[0];
 
     // Start the previous vertex with the last polygon vertex and texture coordinate
-    glm::vec3* previous_vertex = &polygon->vertices[polygon->num_vertices - 1];
-    glm::vec2* previous_texcoord = &polygon->texcoords[polygon->num_vertices - 1];
+    glm::vec3* previous_vertex = &vertices[num_vertices - 1];
+    glm::vec2* previous_texcoord = &texcoords[num_vertices - 1];
 
     // Calculate the dot product of the current and previous vertex
     float current_dot = 0;
     float previous_dot = glm::dot(*previous_vertex - plane_point, plane_normal);
 
     // Loop all the polygon vertices while the current is different than the last one
-    while (current_vertex != &polygon->vertices[polygon->num_vertices]) {
+    while (current_vertex != &vertices[num_vertices]) {
         current_dot = glm::dot(*current_vertex - plane_point, plane_normal);
 
         // If we changed from inside to outside or from outside to inside
@@ -162,18 +169,8 @@ void clip_polygon_against_plane(polygon_t* polygon, int plane)
 
     // At the end, copy the list of inside vertices into the destination polygon (out parameter)
     for (int i = 0; i < num_inside_vertices; i++) {
-        polygon->vertices[i] = glm::vec3(inside_vertices[i]);
-        polygon->texcoords[i] = glm::vec2(inside_texcoords[i]);
+        vertices[i] = glm::vec3(inside_vertices[i]);
+        texcoords[i] = glm::vec2(inside_texcoords[i]);
     }
-    polygon->num_vertices = num_inside_vertices;
-}
-
-void clip_polygon(polygon_t* polygon)
-{
-    clip_polygon_against_plane(polygon, LEFT_FRUSTUM_PLANE);
-    clip_polygon_against_plane(polygon, RIGHT_FRUSTUM_PLANE);
-    clip_polygon_against_plane(polygon, TOP_FRUSTUM_PLANE);
-    clip_polygon_against_plane(polygon, BOTTOM_FRUSTUM_PLANE);
-    clip_polygon_against_plane(polygon, NEAR_FRUSTUM_PLANE);
-    clip_polygon_against_plane(polygon, FAR_FRUSTUM_PLANE);
+    num_vertices = num_inside_vertices;
 }

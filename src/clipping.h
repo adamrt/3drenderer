@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 
@@ -22,13 +24,24 @@ typedef struct {
     glm::vec3 normal;
 } plane_t;
 
-typedef struct {
+class Polygon {
+public:
+    // From triangle constructor;
+    Polygon(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, glm::vec2 t0, glm::vec2 t1, glm::vec2 t2)
+        : vertices { v0, v1, v2 }
+        , texcoords { t0, t1, t2 }
+        , num_vertices(3) {};
+
+    std::vector<Triangle> clipped_triangles();
+
+private:
+    void clip();
+    void clip_against_plane(int plane);
+
     glm::vec3 vertices[MAX_NUM_POLY_VERTICES];
     glm::vec2 texcoords[MAX_NUM_POLY_VERTICES];
     int num_vertices;
-} polygon_t;
+};
 
 void init_frustum_planes(float fov_x, float fov_y, float znear, float zfar);
-polygon_t polygon_from_triangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, glm::vec2 t0, glm::vec2 t1, glm::vec2 t2);
-void triangles_from_polygon(polygon_t* polygon, Triangle triangles[], int* num_triangles);
-void clip_polygon(polygon_t* polygon);
+void clip_polygon(Polygon* polygon);
