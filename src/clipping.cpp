@@ -168,9 +168,11 @@ void Polygon::clip_against_plane(int plane)
     }
 
     // At the end, copy the list of inside vertices into the destination polygon (out parameter)
+    vertices.clear();
+    texcoords.clear();
     for (int i = 0; i < num_inside_vertices; i++) {
-        vertices[i] = glm::vec3(inside_vertices[i]);
-        texcoords[i] = glm::vec2(inside_texcoords[i]);
+        vertices.push_back(glm::vec3(inside_vertices[i]));
+        texcoords.push_back(glm::vec2(inside_texcoords[i]));
     }
     num_vertices = num_inside_vertices;
 }

@@ -38,8 +38,8 @@ private:
     void clip();
     void clip_against_plane(int plane);
 
-    glm::vec3 vertices[MAX_NUM_POLY_VERTICES];
-    glm::vec2 texcoords[MAX_NUM_POLY_VERTICES];
+    std::vector<glm::vec3> vertices;
+    std::vector<glm::vec2> texcoords;
     int num_vertices;
 };
 
