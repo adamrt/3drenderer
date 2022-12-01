@@ -1,14 +1,12 @@
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "Engine.h"
 #include "clipping.h"
 #include "mesh.h"
 
-#include <glm/ext/matrix_clip_space.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
-// Array to store triangles that should be rendered each frame
-#define MAX_TRIANGLES 10000
-Triangle triangles_to_render[MAX_TRIANGLES];
-int num_triangles_to_render = 0;
+std::vector<Triangle> triangles_to_render;
 
 uint32_t* mesh_texture;
 mesh_t mesh = {
@@ -35,16 +33,16 @@ void Engine::setup()
     // Initialize the scene light direction
 
     // Initialize the perspective projection matrix
-    float aspect_y = (float)m_window->get_height() / (float)m_window->get_width();
-    float aspect_x = (float)m_window->get_width() / (float)m_window->get_height();
+    float aspect = (float)m_window->get_width() / (float)m_window->get_height();
     float fov_y = 3.141592 / 3.0; // the same as 180/3, or 60deg
-    float fov_x = atan(tan(fov_y / 2) * aspect_x) * 2;
-    float znear = 0.1;
-    float zfar = 10.0;
-    proj_matrix = glm::perspectiveLH(fov_y, aspect_y, znear, zfar);
+    float fov_x = atan(tan(fov_y / 2) * aspect) * 2;
+    float near = 0.1;
+    float far = 10.0;
+
+    proj_matrix = glm::perspectiveLH(fov_y, aspect, near, far);
 
     // Initialize frustum planes with a point and a normal
-    init_frustum_planes(fov_x, fov_y, znear, zfar);
+    init_frustum_planes(fov_x, fov_y, near, far);
 
     // Loads the vertex and face values for the mesh data structure
     load_obj_file_data(&mesh, "./res/efa.obj");
