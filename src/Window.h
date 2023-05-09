@@ -2,6 +2,10 @@
 #include <SDL2/SDL.h>
 #include <cstdint>
 
+#include "imgui.h"
+#include "imgui_impl_sdl2.h"
+#include "imgui_impl_sdlrenderer.h"
+
 #include "Framebuffer.h"
 
 constexpr int FPS = 30;
@@ -27,4 +31,9 @@ private:
     SDL_Window* m_window = NULL;
     SDL_Renderer* m_renderer = NULL;
     SDL_Texture* m_texture = NULL;
+
+    bool m_show_demo_window = true;
+    bool m_show_another_window = false;
+    ImVec4 m_clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    ImGuiIO* m_io;
 };

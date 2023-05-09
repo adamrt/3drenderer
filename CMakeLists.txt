@@ -24,7 +24,17 @@ add_executable(renderer
   src/mesh.cpp
   src/Window.cpp
   src/texture.cpp
-  src/upng.cpp)
+  src/upng.cpp
+  src/imgui.cpp
+  src/imgui_demo.cpp
+  src/imgui_draw.cpp
+  src/imgui_tables.cpp
+  src/imgui_widgets.cpp
+  src/imgui_impl_sdl2.cpp
+  src/imgui_impl_sdlrenderer.cpp)
 
 
-target_link_libraries(renderer m SDL2)
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/modules)
+find_package(SDL2 REQUIRED)
+include_directories (${SDL2_INCLUDE_DIRS})
+target_link_libraries(renderer m ${SDL2_LIBRARIES})
