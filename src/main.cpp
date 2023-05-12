@@ -19,7 +19,7 @@ int main()
     Engine engine(1024, 768);
     engine.setup();
 
-    while (engine.is_running) {
+    while (engine.is_running()) {
         engine.process_input();
         engine.update();
         engine.render();

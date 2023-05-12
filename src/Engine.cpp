@@ -8,9 +8,6 @@
 Triangle triangles_to_render[MAX_TRIANGLES];
 int num_triangles_to_render = 0;
 
-float delta_time = 0;
-int previous_frame_time = 0;
-
 uint32_t* mesh_texture;
 mesh_t mesh = {
     .faces = { {} },
@@ -66,11 +63,11 @@ void Engine::process_input()
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
         case SDL_QUIT:
-            is_running = false;
+            m_is_running = false;
             break;
         case SDL_KEYDOWN:
             if (event.key.keysym.sym == SDLK_ESCAPE) {
-                is_running = false;
+                m_is_running = false;
                 break;
             }
             if (event.key.keysym.sym == SDLK_1) {
@@ -106,22 +103,22 @@ void Engine::process_input()
                 break;
             }
             if (event.key.keysym.sym == SDLK_w) {
-                auto velocity = m_camera->direction * sensitivity * delta_time;
+                auto velocity = m_camera->direction * sensitivity * m_delta;
                 m_camera->position = m_camera->position + velocity;
                 break;
             }
             if (event.key.keysym.sym == SDLK_s) {
-                auto velocity = m_camera->direction * sensitivity * delta_time;
+                auto velocity = m_camera->direction * sensitivity * m_delta;
                 m_camera->position = m_camera->position - velocity;
                 break;
             }
             if (event.key.keysym.sym == SDLK_a) {
-                auto velocity = glm::vec3(-1.0, 0, 0) * sensitivity * delta_time;
+                auto velocity = glm::vec3(-1.0, 0, 0) * sensitivity * m_delta;
                 m_camera->position = m_camera->position + velocity;
                 break;
             }
             if (event.key.keysym.sym == SDLK_d) {
-                auto velocity = glm::vec3(1.0, 0, 0) * sensitivity * delta_time;
+                auto velocity = glm::vec3(1.0, 0, 0) * sensitivity * m_delta;
                 m_camera->position = m_camera->position + velocity;
                 break;
             }
@@ -133,36 +130,22 @@ void Engine::process_input()
 // Update function frame by frame with a fixed time step
 void Engine::update()
 {
-    int now = SDL_GetTicks();
-    // count fps in 1 sec (1000 ms)
-    if (now > fps_timer + 1000) {
-        std::string title = std::to_string(fps);
-        title.append(" FPS");
-        m_window->set_title(title);
-        fps_timer = now;
-        fps = 0;
-    }
-
-    // Wait some time until the reach the target frame time in milliseconds
-    int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - previous_frame_time);
-
+    int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - m_previous);
     // Only delay execution if we are running too fast
     if (time_to_wait > 0 && time_to_wait <= FRAME_TARGET_TIME) {
         SDL_Delay(time_to_wait);
     }
-
     // Get a delta time factor converted to seconds to be used to update our game objects
-    delta_time = (SDL_GetTicks() - previous_frame_time) / 1000.0;
-
-    previous_frame_time = SDL_GetTicks();
+    m_delta = (SDL_GetTicks() - m_previous) / 1000.0;
+    m_previous = SDL_GetTicks();
 
     // Initialize the counter of triangles to render for the current frame
     num_triangles_to_render = 0;
 
     // Change the mesh scale, rotation, and translation values per animation frame
-    mesh.rotation.x -= 0.2 * delta_time;
-    mesh.rotation.y -= 0.2 * delta_time;
-    mesh.rotation.z += 0.0 * delta_time;
+    mesh.rotation.x -= 0.2 * m_delta;
+    mesh.rotation.y -= 0.2 * m_delta;
+    mesh.rotation.z += 0.0 * m_delta;
     mesh.translation.z = 5.0;
 
     // Create scale, rotation, and translation matrices that will be used to multiply the mesh vertices
@@ -314,7 +297,6 @@ void Engine::update()
             }
         }
     }
-    fps++;
 }
 
 // Render function to draw objects on the display
