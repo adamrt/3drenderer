@@ -16,7 +16,8 @@
 
 int main()
 {
-    Engine engine(1024, 768);
+
+    Engine engine(2048, 1152);
     engine.setup();
 
     while (engine.is_running()) {
