@@ -34,7 +34,7 @@ Window::Window(Framebuffer* fb, int width, int height)
     }
 
     // Create a SDL renderer
-    m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
+    m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED);
     if (!m_renderer) {
         fprintf(stderr, "Error creating SDL renderer.\n");
         exit(EXIT_FAILURE);
